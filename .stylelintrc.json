@@ -1,0 +1,7 @@
+{
+  "extends": ["stylelint-prettier/recommended"],  
+  "ignoreFiles": "./build/**/*.css",
+  "rules": {
+    "prettier/prettier": true
+  }
+}

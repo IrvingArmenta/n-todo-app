@@ -1,0 +1,42 @@
+{
+  "extends": [
+    "preact",
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:prettier/recommended",
+    "plugin:jsx-a11y/recommended",
+    "prettier"
+  ],
+  "plugins": [
+    "@typescript-eslint",
+    "promise",
+    "preact",
+    "jsx-a11y"
+  ],
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  },
+  "ignorePatterns": ["/build", "*.css.d.ts", "/node_modules"],
+  "parser": "@typescript-eslint/parser",
+  "env": { "browser": true, "node": true, "es6": true, "jest": true },
+  "parserOptions": {
+    "sourceType": "module"
+  },
+  "rules": {
+    "@typescript-eslint/explicit-function-return-type": "off",
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+    "@typescript-eslint/no-var-requires": "off",
+    "no-console": "warn",
+    "id-length": ["warn", {"min": 1, "max": 28 }],
+    "object-shorthand": ["warn", "always"],
+    "promise/prefer-await-to-then": "warn",
+    "promise/prefer-await-to-callbacks": "warn",
+    "promise/no-nesting": "warn",
+    "promise/valid-params": "warn",
+    "promise/catch-or-return": "error",
+    "jsx-a11y/anchor-is-valid": "warn"
+  }
+}

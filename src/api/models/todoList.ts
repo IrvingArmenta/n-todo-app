@@ -4,7 +4,7 @@ import { TodoItem } from './todoItem';
 export type TodoListType = {
   userId: string;
   name: string;
-  kind: 'work' | 'shopping' | 'fun' | 'travel';
+  description?: string;
 };
 
 /*
@@ -17,7 +17,7 @@ export class TodoList extends AbstractEntity {
   constructor(
     public userId: string,
     public name: string,
-    public kind: TodoListType['kind'],
+    public description?: string,
     gid?: string
   ) {
     super(gid);

@@ -17,6 +17,7 @@
 .inputWrap label {
   display: inline-block;
   font-weight: 700;
+  color: var(--color, inherit);
 }
 
 .inputWrap .inputHeader {
@@ -29,6 +30,7 @@
 .inputWrap .inputHeader span {
   display: inline-block;
   font-size: 12px;
+  color: var(--color, inherit);
 }
 
 .error {

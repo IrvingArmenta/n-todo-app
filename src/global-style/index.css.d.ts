@@ -1,7 +1,7 @@
 declare const styles: {
   readonly "preact_root": string;
-  readonly "border": string;
   readonly "appTimer": string;
+  readonly "fixed": string;
   readonly "app-page": string;
   readonly "centered": string;
   readonly "pixel-border": string;

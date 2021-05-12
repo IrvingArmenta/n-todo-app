@@ -9,7 +9,7 @@ const Button: FunctionalComponent<ButtonType> = ({
   type = 'button',
   ...props
 }) => {
-  const { disabled, variant, children } = props;
+  const { disabled, variant, children, ...rest } = props;
   return (
     <button
       className={`${style.btn} ${variant ? style[variant] : ''} ${
@@ -17,6 +17,7 @@ const Button: FunctionalComponent<ButtonType> = ({
       } ${props.className || ''}`}
       type={type}
       disabled={disabled}
+      {...rest}
     >
       {children}
     </button>

@@ -1,0 +1,24 @@
+.modalStyle {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 16px;
+  right: 16px;
+  background-color: var(--primary-color);
+  z-index: 30;
+  overflow: hidden;
+  padding: 16px;
+}
+
+.modalStyle .buttonsWrap {
+  display: flex;
+  align-items: center;
+}
+
+.modalStyle .buttonsWrap button:first-child {
+  margin-right: 16px;
+}
+
+.modalStyle > *:not(:last-child) {
+  margin-bottom: 12px;
+}

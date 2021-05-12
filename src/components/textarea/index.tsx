@@ -21,6 +21,9 @@ const TextArea = forwardRef<
       <span className={inputStyle.inputHeader}>
         {label && <label htmlFor={rest.id}>{label}</label>}
         {setsumei && <span>{setsumei}</span>}
+        {props.maxLength && (
+          <span>{props.maxLength - String(props.value).length}文字まで</span>
+        )}
       </span>
       <textarea
         ref={ref}

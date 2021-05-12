@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import style from './style.css';
+import styleCss from './style.css';
 import { forwardRef, useRef } from 'preact/compat';
 import { Transition } from 'react-transition-group';
 import anime from 'animejs';
@@ -13,19 +13,19 @@ const Input = forwardRef<
     error?: string;
   } & h.JSX.HTMLAttributes<HTMLInputElement>
 >((props, ref) => {
-  const { className, label, setsumei, error, ...rest } = props;
+  const { className, label, setsumei, error, style, ...rest } = props;
   const errorRef = useRef<HTMLDivElement>(null);
 
   return (
-    <div className={style.inputWrap}>
-      <span className={style.inputHeader}>
+    <div className={styleCss.inputWrap} style={style}>
+      <span className={styleCss.inputHeader}>
         {label && <label htmlFor={rest.id}>{label}</label>}
         {setsumei && <span>{setsumei}</span>}
       </span>
       <input
         ref={ref}
         {...rest}
-        className={`${style.input} ${className || ''}`}
+        className={`${styleCss.input} ${className || ''}`}
       />
       <Transition
         in={Boolean(error)}
@@ -49,7 +49,7 @@ const Input = forwardRef<
           });
         }}
       >
-        <div className={`${style.error} iconArrow`} ref={errorRef}>
+        <div className={`${styleCss.error} iconArrow`} ref={errorRef}>
           {error}
         </div>
       </Transition>

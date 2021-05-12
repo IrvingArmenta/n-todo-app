@@ -1,28 +1,36 @@
 import style from './style.css';
 import { FunctionalComponent, h } from 'preact';
-import { route } from 'preact-router';
 import { useCallback, useEffect, useRef, useState } from 'preact/hooks';
+import { useHistory } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import Logo from '../../assets/img/todo-app-logo.svg';
 import anime from 'animejs';
-const USER_COOKIE_NAME = 'TodoApp-User-Cookie';
+export const USER_COOKIE_NAME = 'TodoApp-User-Cookie';
 
 // components
 import Container from '../../components/container';
 import Input from '../../components/input';
 import Button from '../../components/button';
 import Timer from '../../components/timer';
-import { createUser, getUser } from '../../api/helpers';
+import {
+  createTodoItemBulk,
+  createTodoList,
+  createUser
+} from '../../api/helpers';
 import { db } from '../../api/db';
 import { User } from '../../api/models/user';
+import { TodoList } from '../../api/models/todoList';
+import { TodoItem } from '../../api/models/todoItem';
+import dayjs from 'dayjs';
 
 const Login: FunctionalComponent = () => {
+  const history = useHistory();
   const [userName, setUserName] = useState<string | undefined>(undefined);
   const [inputError, setInputError] = useState('');
   const formRef = useRef<HTMLFormElement>(null);
   const pageRef = useRef<HTMLDivElement>(null);
   const logoRef = useRef<HTMLSpanElement>(null);
-  const userCookie = Cookies.get(USER_COOKIE_NAME);
+  const userCookie = Cookies.get()[USER_COOKIE_NAME];
 
   const handleSubmit = useCallback(
     async (e: h.JSX.TargetedEvent<HTMLFormElement, Event>) => {
@@ -33,24 +41,77 @@ const Login: FunctionalComponent = () => {
         !userName.trim().includes(' ')
       ) {
         setInputError('');
-        await db.transaction('rw', db.users, async () => {
-          const newUser = new User(userName);
+        try {
+          await db.transaction(
+            'rw',
+            db.users,
+            db.todoLists,
+            db.todoItems,
+            async () => {
+              const userExists = await db.users
+                .where('name')
+                .equals(userName)
+                .first();
 
-          await createUser(db, newUser);
-        });
-        Cookies.set(USER_COOKIE_NAME, userName);
-        anime({
-          targets: pageRef.current,
-          scale: [1, 0.9],
-          complete: () => {
-            route('/dashboard');
-          }
-        });
+              if (!userExists) {
+                const newUser = new User(userName);
+
+                const newUserID = await createUser(db, newUser);
+
+                const sampleList = new TodoList(
+                  newUserID,
+                  '私のサンプルリスト'
+                );
+
+                const sampleListId = await createTodoList(db, sampleList);
+
+                const sampleTodoItems = [
+                  new TodoItem(
+                    sampleListId,
+                    'ランチ',
+                    '原宿で友達とランチする',
+                    new Date()
+                  ),
+                  new TodoItem(
+                    sampleListId,
+                    '目黒ディナー',
+                    '彼女とデート！',
+                    new Date()
+                  ),
+                  new TodoItem(
+                    sampleListId,
+                    '英語のテスト',
+                    '英語のテストの時間！',
+                    dayjs().add(10, 'minute').toDate()
+                  )
+                ];
+
+                await createTodoItemBulk(db, sampleTodoItems);
+              }
+            }
+          );
+          Cookies.set('TodoApp-User-Cookie', userName, { expires: 7 });
+          anime({
+            targets: pageRef.current,
+            keyframes: [
+              { scale: 0.92 },
+              { opacity: 0, easing: 'easeInOutQuad' }
+            ],
+            duration: 1500,
+            complete: () => {
+              history.push('/dashboard');
+            }
+          });
+        } catch (e) {
+          setInputError(
+            'DB アプリケーションエラー、ブラウザーを更新してください'
+          );
+        }
       } else {
         setInputError('スペースは使えません');
       }
     },
-    [userName]
+    [history, userName]
   );
 
   // オペニング アニメーション
@@ -88,17 +149,21 @@ const Login: FunctionalComponent = () => {
         );
     } else {
       // user cookieがあれば、このページにredirectします
-      route('/dashboard');
+      history.push('/dashboard');
     }
-  }, [userCookie]);
+  }, [history, userCookie]);
 
   if (userCookie) {
     return null;
   }
 
   return (
-    <div className={`${style.loginWrap} app-page centered`} ref={pageRef}>
-      <Timer />
+    <div
+      className={`${style.loginWrap} app-page centered`}
+      ref={pageRef}
+      id="loginPage"
+    >
+      <Timer fixed={true} className={style.appTimer} />
       <span className={style.logo} ref={logoRef}>
         <Logo title="Todo App" />
       </span>

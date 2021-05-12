@@ -19,8 +19,8 @@
     "js-cookie": "^2.2.1",
     "preact": "^10.3.1",
     "preact-render-to-string": "^5.1.4",
-    "preact-router": "^3.2.1",
     "react-flip-move": "^3.0.4",
+    "react-router-dom": "^5.2.0",
     "react-transition-group": "^4.4.1"
   },
   "devDependencies": {
@@ -29,6 +29,7 @@
     "@types/enzyme": "^3.10.5",
     "@types/jest": "^26.0.8",
     "@types/js-cookie": "^2.2.6",
+    "@types/react-router-dom": "^5.1.7",
     "@types/react-transition-group": "^4.4.1",
     "@typescript-eslint/eslint-plugin": "^4.22.1",
     "@typescript-eslint/parser": "^4.22.1",

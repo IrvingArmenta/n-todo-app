@@ -57,24 +57,26 @@ body {
   max-width: 640px;
   min-width: 320px;
   margin: 0 auto;
-  transition: border 300ms ease-in-out;
-}
-
-#preact_root.border {
   border: 16px solid var(--dark-gray-color);
+  overflow: hidden;
+  position: relative;
 }
 
 .appTimer {
-  position: fixed;
-  top: 24px;
-  right: 24px;
   font-size: 19px;
-  opacity: 0;
+  z-index: -1;
+}
+
+.appTimer.fixed {
+  position: absolute;
+  top: 16px;
+  right: 16px;
 }
 
 .app-page {
   flex: 1;
   padding: 24px;
+  overflow: auto;
 }
 
 .app-page.centered {
@@ -94,6 +96,12 @@ body {
   box-shadow: 0 0 8px #d9d9d9;
 }
 
+ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
 /** css icons */
 .icon {
   position: relative;
@@ -105,6 +113,7 @@ body {
   transform: scale(2);
   transform-origin: top left;
 }
+
 .icon::before {
   position: absolute;
   top: -1px;

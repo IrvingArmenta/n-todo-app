@@ -1,0 +1,44 @@
+.dashboard {
+  opacity: 0;
+  flex-direction: column;
+}
+
+.dashboard h1 {
+  font-size: 28px;
+}
+
+.listsWrapper {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+  font-size: 0;
+}
+
+.listsWrapper li {
+  flex-basis: calc(50% - 16px);
+  margin: 8px;
+  font-size: 18px;
+}
+
+.listsWrapper li button {
+  width: 100%;
+  height: 100%;
+  line-height: 1.4;
+}
+
+.listsWrapper li button h4 {
+  margin: 0;
+}
+
+.listsWrapper li button p {
+  margin-top: 8px;
+}
+
+.listsContainer {
+  padding: 8px !important;
+  width: 100%;
+}
+
+.listsContainer legend {
+  font-size: 1rem !important;
+}

@@ -1,5 +1,5 @@
 declare const styles: {
-  readonly "profile": string;
+  readonly "listViewWrapper": string;
 };
 export = styles;
 

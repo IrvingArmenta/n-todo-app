@@ -1,20 +1,23 @@
 import { AppDatabase } from './db';
+import { TodoItem } from './models/todoItem';
+import { TodoList } from './models/todoList';
 import { User } from './models/user';
 
 export async function createUser(db: AppDatabase, user: User) {
   return await db.users.put(user);
 }
 
-export async function getUser(db: AppDatabase, userId: string) {
-  return await db.users.get(userId);
+export async function createTodoList(db: AppDatabase, todoList: TodoList) {
+  return await db.todoLists.put(todoList);
 }
 
-export async function loadUserData(db: AppDatabase, user: User) {
-  if (user.gid) {
-    [user.todoLists] = await Promise.all([
-      db.todoLists.where('userId').equals(user.gid).toArray()
-    ]);
-  } else {
-    throw new Error('user id was not defined');
-  }
+export async function createTodoItem(db: AppDatabase, todoItem: TodoItem) {
+  return await db.todoItems.put(todoItem);
+}
+
+export async function createTodoItemBulk(
+  db: AppDatabase,
+  todoItems: TodoItem[]
+) {
+  return await db.todoItems.bulkPut(todoItems);
 }

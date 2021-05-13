@@ -43,6 +43,12 @@
   fill: #fff;
 }
 
+.listsWrapper header {
+  position: absolute;
+  right: 8px;
+  z-index: 8;
+}
+
 .listsWrapper li section {
   line-height: 1.4;
   padding: 4px;

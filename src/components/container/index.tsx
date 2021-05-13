@@ -1,5 +1,5 @@
 import { FunctionalComponent, h } from 'preact';
-import style from './style.css';
+import style, { isSafari } from './style.css';
 
 type ContainerType = {
   title?: string;
@@ -15,7 +15,9 @@ const Container: FunctionalComponent<ContainerType> = (props) => {
         } pixel-border app-container ${className || ''}`}
         {...rest}
       >
-        <legend className={style.title}>{title}</legend>
+        <legend className={`${style.title} ${isSafari ? style.isSafari : ''}`}>
+          {title}
+        </legend>
         {children}
       </fieldset>
     );

@@ -3,6 +3,7 @@ declare const styles: {
   readonly "isCentered": string;
   readonly "withTitle": string;
   readonly "title": string;
+  readonly "isSafari": string;
 };
 export = styles;
 

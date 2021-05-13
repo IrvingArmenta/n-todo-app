@@ -22,3 +22,8 @@
 .container.withTitle.isCentered > .title {
   margin: -2rem auto 1rem;
 }
+
+/** safari fix */
+.isSafari {
+  background-color: var(--app-background-color);
+}

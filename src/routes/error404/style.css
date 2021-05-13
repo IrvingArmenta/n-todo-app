@@ -1,0 +1,10 @@
+.errorPageWrap {
+  flex-direction: column;
+  font-size: 1.6rem;
+}
+
+.errorPageWrap span {
+  font-size: 100px;
+  display: block;
+  color: var(--primary-color);
+}

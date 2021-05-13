@@ -6,6 +6,7 @@ const AddButton: FunctionalComponent<
   {
     closeMode?: boolean;
     text?: string;
+    absolute?: boolean;
   } & h.JSX.HTMLAttributes<HTMLButtonElement>
 > = ({ text = '追加する', ...props }) => {
   const { closeMode, ...rest } = props;
@@ -14,7 +15,9 @@ const AddButton: FunctionalComponent<
       {...rest}
       className={`${style.addButton} ${style.size} ${
         closeMode ? style.closeMode : ''
-      } ${props.disabled ? style.isDisabled : ''}`}
+      } ${props.absolute ? style.absolute : ''} ${
+        props.disabled ? style.isDisabled : ''
+      }`}
     >
       <span className={style.text}>{text}</span>
       <svg

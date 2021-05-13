@@ -25,12 +25,13 @@ const Timer: FunctionalComponent<TimerType> = (props) => {
   }
 
   return (
-    <span
+    <time
       className={`appTimer ${fixed ? 'fixed' : ''} ${className || ''}`}
       id="appTimerId"
+      dateTime={timer.format()}
     >
       {timer.format('LL LTS')}
-    </span>
+    </time>
   );
 };
 

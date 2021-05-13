@@ -2,12 +2,11 @@ import { FunctionalComponent, h } from 'preact';
 import style from './style.css';
 
 type ContainerType = {
-  align?: 'left' | 'right' | 'centered';
   title?: string;
 } & h.JSX.HTMLAttributes<HTMLFieldSetElement>;
 
 const Container: FunctionalComponent<ContainerType> = (props) => {
-  const { align, title, children, className, ...rest } = props;
+  const { title, children, className, ...rest } = props;
   if (title) {
     return (
       <fieldset

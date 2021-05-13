@@ -1,12 +1,12 @@
 import { FunctionalComponent, h } from 'preact';
-import { Link } from 'react-router-dom';
+import { Link } from 'preact-router';
 
 const Error404: FunctionalComponent = () => {
   return (
-    <div>
+    <div className="app-page centered">
       <h1>Error 404</h1>
       <p>That page doesn&apos;t exist.</p>
-      <Link to="/">
+      <Link href="/">
         <h4>Back to Home</h4>
       </Link>
     </div>

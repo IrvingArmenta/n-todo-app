@@ -1,11 +1,6 @@
+/* eslint-disable jsx-a11y/click-events-have-key-events */
 import { FunctionalComponent, h } from 'preact';
-import { useEffect, useRef, useState } from 'preact/hooks';
-import {
-  useHistory,
-  RouteComponentProps,
-  useRouteMatch
-} from 'react-router-dom';
-
+import { useCallback, useEffect, useRef, useState } from 'preact/hooks';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../api/db';
 import Cookies from 'js-cookie';
@@ -15,26 +10,27 @@ import style from './style.css';
 
 // components
 import Container from '../../components/container';
-import Button from '../../components/button';
 import AddButton from '../../components/addButton';
 import Input from '../../components/input';
-import TextArea from '../../components/textarea';
 import Modal from '../../components/modal';
+import { route } from 'preact-router';
+import { TodoList } from '../../api/models/todoList';
+import { createTodoList } from '../../api/helpers';
+import DeleteIcon from '../../assets/img/delete-icon.svg';
 
 type DashboardType = {
   userFromUrl?: string;
-} & RouteComponentProps;
+};
 
 const Dashboard: FunctionalComponent<DashboardType> = () => {
   const userCookie = Cookies.get('TodoApp-User-Cookie');
-  const [toggleModal, setToggle] = useState(false);
+  const [toggleModal, setToggleModal] = useState(false);
   const dbPageRef = useRef<HTMLDivElement>(null);
-  const history = useHistory();
-  const { path } = useRouteMatch();
+  const listUpdater = useRef(0);
 
   // form elements state
-  const [shortDesc, setShorDesc] = useState('');
   const [listTitle, setListTitle] = useState('');
+  const [order, setOrder] = useState(false);
   const listTitleInputRef = useRef<HTMLInputElement>(null);
 
   const userFromDb = useLiveQuery(
@@ -46,16 +42,57 @@ const Dashboard: FunctionalComponent<DashboardType> = () => {
     [userCookie]
   );
 
-  const usersTodoLists = useLiveQuery(
-    () =>
-      db.todoLists
+  const usersTodoLists = useLiveQuery(() => {
+    if (order) {
+      return db.todoLists
         .where('userId')
         .equals(userFromDb?.gid || '')
-        .toArray(),
+        .sortBy('creationDate');
+    }
+    return db.todoLists
+      .where('userId')
+      .equals(userFromDb?.gid || '')
+      .reverse()
+      .sortBy('creationDate');
+  }, [userFromDb, listUpdater.current, order]);
+
+  const handleCreateList = useCallback(
+    async (newListName: string, newListDescription?: string) => {
+      try {
+        await db.transaction('rw', db.todoLists, async () => {
+          if (userFromDb && userFromDb.gid) {
+            const newList = new TodoList(
+              userFromDb.gid,
+              newListName,
+              new Date(),
+              newListDescription
+            );
+
+            await createTodoList(db, newList);
+          } else {
+            throw new Error('user id not found');
+          }
+        });
+        setToggleModal(false);
+      } catch (e) {
+        throw new Error('データベースエラー');
+      }
+    },
     [userFromDb]
   );
 
-  // const handleCreateList = useCallback(() => {}, []);
+  const handleListDelete = useCallback(async (listId: string) => {
+    if (window.confirm('リストは完全に削除されます、よろしいですか？')) {
+      try {
+        await db.transaction('rw', db.todoLists, async () => {
+          await db.todoLists.delete(listId);
+        });
+        setToggleModal(false);
+      } catch (e) {
+        throw new Error('データベースエラー');
+      }
+    }
+  }, []);
 
   // アニメーション
   useEffect(() => {
@@ -64,13 +101,6 @@ const Dashboard: FunctionalComponent<DashboardType> = () => {
       keyframes: [{ opacity: [0, 1], easing: 'easeInOutQuad' }, { scale: 1 }]
     });
   }, []);
-
-  useEffect(() => {
-    document.getElementById('preact_root')?.classList.add('border');
-    if (!userCookie) {
-      history.push('/');
-    }
-  }, [history, userCookie]);
 
   return (
     <div
@@ -82,15 +112,21 @@ const Dashboard: FunctionalComponent<DashboardType> = () => {
         ようこそ、<span>{userFromDb?.name}</span>
       </h1>
 
-      <AddButton
-        onClick={() => {
-          setToggle((p) => !p);
-        }}
-        closeMode={toggleModal}
-      />
       <Modal
         open={toggleModal}
         onModalOpen={() => listTitleInputRef.current.focus()}
+        onModalClose={() => {
+          setListTitle('');
+          listUpdater.current++;
+        }}
+        onSubmitButtonClick={() => {
+          if (listTitleInputRef.current.checkValidity()) {
+            handleCreateList(listTitle);
+          }
+        }}
+        onCancelButtonClick={() => {
+          setToggleModal(false);
+        }}
       >
         <Input
           label="リストタイトル"
@@ -98,44 +134,65 @@ const Dashboard: FunctionalComponent<DashboardType> = () => {
           value={listTitle}
           onInput={(e) => setListTitle(e.currentTarget.value)}
           ref={listTitleInputRef}
-          maxLength={16}
+          maxLength={24}
           required={true}
-        />
-        <TextArea
-          maxLength={40}
-          label="概要"
-          value={shortDesc}
-          onInput={(e) => setShorDesc(e.currentTarget.value)}
         />
       </Modal>
       <Container className={style.listsContainer} title="私のリスト">
-        {usersTodoLists && usersTodoLists.length !== 0 && (
-          <FlipMove className={style.listsWrapper} typeName="ul">
-            {usersTodoLists.map((todolist) => (
-              <li key={todolist.gid}>
-                <Button
-                  onClick={() => {
-                    anime({
-                      targets: dbPageRef.current,
-                      translateX: -32,
-                      easing: 'easeInOutExpo',
-                      opacity: 0,
-                      complete: () => {
-                        history.push({
-                          pathname: `${path}/${todolist.gid}`
-                        });
-                      }
-                    });
-                  }}
+        <button
+          className="pixel-border"
+          onClick={() => setOrder((prev) => !prev)}
+          style={{ marginBottom: 8 }}
+        >
+          {`日付 ${order ? '▲' : '▼'}`}
+        </button>
+        <FlipMove
+          className={style.listsWrapper}
+          typeName="ul"
+          duration={500}
+          easing={'cubic-bezier(0.39,0,0.45,1.4)'}
+          staggerDurationBy={22}
+          staggerDelayBy={10}
+          delay={0}
+        >
+          {usersTodoLists?.map((todolist) => (
+            <li key={todolist.gid} className="pixel-border">
+              <header>
+                <button
+                  className="pixel-border"
+                  onClick={() => handleListDelete(todolist.gid || '')}
                 >
-                  <h4>{todolist.name}</h4>
-                  {todolist.description && <p>{todolist.description}</p>}
-                </Button>
-              </li>
-            ))}
-          </FlipMove>
-        )}
+                  <DeleteIcon />
+                </button>
+              </header>
+              <section
+                tabIndex={0}
+                role="button"
+                onClick={() => {
+                  anime({
+                    targets: dbPageRef.current,
+                    translateX: -32,
+                    easing: 'easeInOutExpo',
+                    opacity: 0,
+                    duration: 700,
+                    complete: () => {
+                      route(`/dashboard/${todolist.gid}`);
+                    }
+                  });
+                }}
+              >
+                <h4>{todolist.name}</h4>
+              </section>
+            </li>
+          ))}
+        </FlipMove>
       </Container>
+      <AddButton
+        onClick={() => {
+          setToggleModal((p) => !p);
+        }}
+        closeMode={toggleModal}
+      />
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import { h } from 'preact';
+import { Fragment, h } from 'preact';
 import styleCss from './style.css';
 import { forwardRef, useRef } from 'preact/compat';
 import { Transition } from 'react-transition-group';
@@ -15,12 +15,34 @@ const Input = forwardRef<
 >((props, ref) => {
   const { className, label, setsumei, error, style, ...rest } = props;
   const errorRef = useRef<HTMLDivElement>(null);
+  const valueCount = typeof props.value === 'string' ? props.value.length : 0;
 
   return (
     <div className={styleCss.inputWrap} style={style}>
       <span className={styleCss.inputHeader}>
         {label && <label htmlFor={rest.id}>{label}</label>}
-        {setsumei && <span>{setsumei}</span>}
+        <span style={{ textAlign: 'right' }}>
+          {(setsumei || props.maxLength) && (
+            <Fragment>
+              {setsumei && (
+                <span style={{ display: 'block', marginBottom: 4 }}>
+                  {setsumei}
+                </span>
+              )}
+              {props.maxLength && (
+                <span
+                  style={{
+                    color:
+                      props.maxLength - valueCount === 0 ? 'red' : 'inherit'
+                  }}
+                >
+                  {props.maxLength - valueCount}
+                  文字まで
+                </span>
+              )}
+            </Fragment>
+          )}
+        </span>
       </span>
       <input
         ref={ref}

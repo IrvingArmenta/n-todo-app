@@ -3,8 +3,7 @@ import AbstractEntity from '../abstractEntity';
 export type TodoItemType = {
   todoListId: string;
   title: string;
-  description: string;
-  dueDate?: Date;
+  description?: string;
   creationDate: Date;
 };
 
@@ -16,9 +15,9 @@ export class TodoItem extends AbstractEntity {
   constructor(
     public todoListId: string,
     public title: string,
-    public description: string,
     public creationDate: Date,
-    public dueDate?: Date,
+    public done?: boolean,
+    public description?: string,
     gid?: string
   ) {
     super(gid);

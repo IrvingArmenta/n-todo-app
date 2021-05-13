@@ -8,7 +8,7 @@ import style from './style.css';
 
 type ModalType = {
   open?: boolean;
-  onModalOpen?: (node: HTMLDivElement) => void;
+  onModalOpen?: (node: HTMLFormElement) => void;
   onModalClose?: () => void;
   onSubmitButtonClick?: (
     e: h.JSX.TargetedMouseEvent<HTMLButtonElement>
@@ -28,25 +28,25 @@ const Modal: FunctionalComponent<ModalType> = (props) => {
     onSubmitButtonClick,
     onCancelButtonClick
   } = props;
-  const modalBodyRef = useRef<HTMLDivElement>(null);
+  const modalBodyRef = useRef<HTMLFormElement>(null);
   return (
     <Fragment>
       <Transition
-        timeout={1100}
+        timeout={900}
         in={open}
         nodeRef={modalBodyRef}
         mountOnEnter={true}
         unmountOnExit={true}
         onEntering={() => {
           anime.remove(modalBodyRef.current);
-          const h = anime.get(modalBodyRef.current, 'height');
           anime({
             targets: modalBodyRef.current,
-            height: [0, h],
+            height: [0, 330],
             opacity: [0, 1],
             easing: 'easeInOutExpo',
-            duration: 1100,
+            duration: 900,
             complete: () => {
+              document.documentElement.classList.add('modal-open');
               if (onModalOpen) {
                 onModalOpen(modalBodyRef.current);
               }
@@ -60,7 +60,7 @@ const Modal: FunctionalComponent<ModalType> = (props) => {
             opacity: 0,
             height: 0,
             easing: 'easeInOutExpo',
-            duration: 1100,
+            duration: 900,
             complete: () => {
               if (onModalClose) {
                 onModalClose();
@@ -69,10 +69,11 @@ const Modal: FunctionalComponent<ModalType> = (props) => {
           });
         }}
       >
-        <div
+        <form
           style={{ '--color': '#fff' }}
           ref={modalBodyRef}
           className={`${style.modalStyle} pixel-border`}
+          onSubmit={(e) => e.preventDefault()}
         >
           {children}
           <div className={style.buttonsWrap}>
@@ -82,9 +83,10 @@ const Modal: FunctionalComponent<ModalType> = (props) => {
                   onSubmitButtonClick(e);
                 }
               }}
+              type="submit"
               variant="secondary"
             >
-              追加する
+              OK
             </Button>
             <Button
               onClick={(e) => {
@@ -93,10 +95,10 @@ const Modal: FunctionalComponent<ModalType> = (props) => {
                 }
               }}
             >
-              キャンセル
+              CANCEL
             </Button>
           </div>
-        </div>
+        </form>
       </Transition>
     </Fragment>
   );

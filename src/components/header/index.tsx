@@ -1,34 +1,33 @@
 import { FunctionalComponent, h } from 'preact';
-import { useLocation, useHistory } from 'react-router-dom';
 import { useCallback, useRef } from 'preact/hooks';
 import Button from '../button';
 import style from './style.css';
 import Cookies from 'js-cookie';
 import Timer from '../timer';
 import anime from 'animejs';
+import { route } from 'preact-router';
+import { isBrowser } from '../../utils';
 type HeaderType = {
   isLogin?: boolean;
 };
 
-const Header: FunctionalComponent<HeaderType> = () => {
+const Header: FunctionalComponent<HeaderType> = (props) => {
+  const { isLogin } = props;
   const headerRef = useRef<HTMLElement>(null);
-  const location = useLocation();
-  const history = useHistory();
-  console.log(location);
 
   const handleLogout = useCallback(async () => {
     anime({
-      targets: [document.getElementById('dashboardPage'), headerRef.current],
-      keyframes: [{ scale: 0.9 }, { opacity: 0, easing: 'easeInOutQuad' }],
+      targets: document.getElementById('preact_root')?.children,
+      keyframes: [{ scale: 0.94 }, { opacity: 0, easing: 'easeInOutQuad' }],
       complete: () => {
         Cookies.remove('TodoApp-User-Cookie', { expires: 7 });
-        history.push('/');
+        route('/', true);
       }
     });
-  }, [history]);
+  }, []);
 
   // ログインページなら見せない
-  if (location.pathname === '/') {
+  if (isLogin) {
     return null;
   }
 

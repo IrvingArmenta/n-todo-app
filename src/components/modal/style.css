@@ -8,11 +8,20 @@
   z-index: 30;
   overflow: hidden;
   padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .modalStyle .buttonsWrap {
   display: flex;
   align-items: center;
+  justify-content: center;
+}
+
+.modalStyle .buttonsWrap button {
+  width: 50%;
+  font-size: 24px;
 }
 
 .modalStyle .buttonsWrap button:first-child {

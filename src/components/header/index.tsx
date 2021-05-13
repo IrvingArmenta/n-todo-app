@@ -6,7 +6,6 @@ import Cookies from 'js-cookie';
 import Timer from '../timer';
 import anime from 'animejs';
 import { route } from 'preact-router';
-import { isBrowser } from '../../utils';
 type HeaderType = {
   isLogin?: boolean;
 };
@@ -34,9 +33,11 @@ const Header: FunctionalComponent<HeaderType> = (props) => {
   return (
     <header class={style.header} ref={headerRef}>
       <Timer />
-      <nav>
-        <Button onClick={handleLogout}>ログアウト</Button>
-      </nav>
+      {Cookies.get('TodoApp-User-Cookie') && (
+        <nav>
+          <Button onClick={handleLogout}>ログアウト</Button>
+        </nav>
+      )}
     </header>
   );
 };

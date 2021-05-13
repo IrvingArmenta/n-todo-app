@@ -122,7 +122,7 @@ const Login: FunctionalComponent<{ path: string }> = (props) => {
             );
         } catch (e) {
           setInputError(
-            'DB アプリケーションエラー、ブラウザーを更新してください'
+            'DB アプリケーションエラー、ブラウザーを更新して下さい'
           );
         }
       } else {
@@ -196,7 +196,7 @@ const Login: FunctionalComponent<{ path: string }> = (props) => {
             value={userName}
             id="nameInput"
             label="ID"
-            setsumei="名前を書いてください"
+            setsumei="名前を入力して下さい"
             maxLength={12}
             required={true}
             error={inputError}

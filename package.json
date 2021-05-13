@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "todo-app",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "license": "UNLICENSED",
   "scripts": {
     "build": "preact build",
@@ -19,8 +19,8 @@
     "js-cookie": "^2.2.1",
     "preact": "^10.3.1",
     "preact-render-to-string": "^5.1.4",
+    "preact-router": "^3.2.1",
     "react-flip-move": "^3.0.4",
-    "react-router-dom": "^5.2.0",
     "react-transition-group": "^4.4.1"
   },
   "devDependencies": {
@@ -29,14 +29,13 @@
     "@types/enzyme": "^3.10.5",
     "@types/jest": "^26.0.8",
     "@types/js-cookie": "^2.2.6",
-    "@types/react-router-dom": "^5.1.7",
     "@types/react-transition-group": "^4.4.1",
-    "@typescript-eslint/eslint-plugin": "^4.22.1",
-    "@typescript-eslint/parser": "^4.22.1",
-    "concurrently": "^6.0.2",
+    "@typescript-eslint/eslint-plugin": "^4.23.0",
+    "@typescript-eslint/parser": "^4.23.0",
+    "concurrently": "^6.1.0",
     "enzyme": "^3.11.0",
     "enzyme-adapter-preact-pure": "^3.1.0",
-    "eslint": "^7.25.0",
+    "eslint": "^7.26.0",
     "eslint-config-preact": "^1.1.1",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-jsx-a11y": "^6.4.1",
@@ -46,7 +45,8 @@
     "jest": "^26.2.2",
     "jest-preset-preact": "^4.0.2",
     "preact-cli": "^3.0.0",
-    "prettier": "^2.2.1",
+    "prettier": "^2.3.0",
+    "regenerator-runtime": "^0.13.7",
     "sirv-cli": "^1.0.0-next.3",
     "stylelint": "^13.13.1",
     "stylelint-config-prettier": "^8.0.2",
@@ -61,6 +61,9 @@
     "setupFiles": [
       "<rootDir>/tests/__mocks__/browserMocks.ts",
       "<rootDir>/tests/__mocks__/setupTests.ts"
+    ],
+    "setupFilesAfterEnv": [
+      "./pathToYour/setupTests.js"
     ]
   }
 }

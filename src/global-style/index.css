@@ -1,7 +1,4 @@
 :root {
-  --dark-gray-color: rgb(65, 69, 72);
-  --gray-color: rgb(152, 152, 152);
-
   /** primary color */
   --p-color: 355, 100%;
   --p-light: 45%;
@@ -15,6 +12,13 @@
   --secondary-color: hsl(var(--s-color), var(--s-light));
   --secondary-color-shade: hsl(var(--s-color), calc(var(--s-light) - 5%));
   --secondary-color-dark: hsl(var(--s-color), calc(var(--s-light) - 12%));
+
+  /** grays */
+  --dark-gray-color: rgb(65, 69, 72);
+  --gray-color: rgb(152, 152, 152);
+
+  --app-background-color: #e6e6e6;
+  --primary-bg-color: #fff;
 }
 
 html {
@@ -22,7 +26,7 @@ html {
   width: 100%;
   padding: 0;
   margin: 0;
-  background: #fafafa;
+  background: var(--app-background-color);
   font-size: 18px;
   overflow: hidden;
 }
@@ -57,7 +61,7 @@ body {
   max-width: 640px;
   min-width: 320px;
   margin: 0 auto;
-  border: 16px solid var(--dark-gray-color);
+  //border: 16px solid var(--dark-gray-color);
   overflow: hidden;
   position: relative;
 }
@@ -69,8 +73,8 @@ body {
 
 .appTimer.fixed {
   position: absolute;
-  top: 16px;
-  right: 16px;
+  top: 24px;
+  right: 24px;
 }
 
 .app-page {

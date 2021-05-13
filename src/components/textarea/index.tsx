@@ -20,10 +20,18 @@ const TextArea = forwardRef<
     <div className={inputStyle.inputWrap}>
       <span className={inputStyle.inputHeader}>
         {label && <label htmlFor={rest.id}>{label}</label>}
-        {setsumei && <span>{setsumei}</span>}
-        {props.maxLength && (
-          <span>{props.maxLength - String(props.value).length}文字まで</span>
-        )}
+        <span>
+          {(setsumei || props.maxLength) && (
+            <span>
+              {setsumei && <span>{setsumei}</span>}
+              {props.maxLength && (
+                <span>
+                  {props.maxLength - String(props.value).length}文字まで
+                </span>
+              )}
+            </span>
+          )}
+        </span>
       </span>
       <textarea
         ref={ref}

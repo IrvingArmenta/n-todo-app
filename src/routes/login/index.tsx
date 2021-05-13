@@ -1,7 +1,6 @@
 import style from './style.css';
 import { FunctionalComponent, h } from 'preact';
 import { useCallback, useEffect, useRef, useState } from 'preact/hooks';
-import { useHistory } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import Logo from '../../assets/img/todo-app-logo.svg';
 import anime from 'animejs';
@@ -22,15 +21,16 @@ import { User } from '../../api/models/user';
 import { TodoList } from '../../api/models/todoList';
 import { TodoItem } from '../../api/models/todoItem';
 import dayjs from 'dayjs';
+import { route } from 'preact-router';
 
-const Login: FunctionalComponent = () => {
-  const history = useHistory();
+const Login: FunctionalComponent<{ path: string }> = (props) => {
   const [userName, setUserName] = useState<string | undefined>(undefined);
   const [inputError, setInputError] = useState('');
+  const { path } = props;
   const formRef = useRef<HTMLFormElement>(null);
   const pageRef = useRef<HTMLDivElement>(null);
   const logoRef = useRef<HTMLSpanElement>(null);
-  const userCookie = Cookies.get()[USER_COOKIE_NAME];
+  const userCookie = Cookies.get('TodoApp-User-Cookie');
 
   const handleSubmit = useCallback(
     async (e: h.JSX.TargetedEvent<HTMLFormElement, Event>) => {
@@ -60,7 +60,8 @@ const Login: FunctionalComponent = () => {
 
                 const sampleList = new TodoList(
                   newUserID,
-                  '私のサンプルリスト'
+                  '私のサンプルリスト',
+                  new Date()
                 );
 
                 const sampleListId = await createTodoList(db, sampleList);
@@ -69,20 +70,23 @@ const Login: FunctionalComponent = () => {
                   new TodoItem(
                     sampleListId,
                     'ランチ',
-                    '原宿で友達とランチする',
-                    new Date()
+                    dayjs().add(2, 'hour').toDate(),
+                    false,
+                    '原宿で友達とランチする'
                   ),
                   new TodoItem(
                     sampleListId,
                     '目黒ディナー',
-                    '彼女とデート！',
-                    new Date()
+                    new Date(),
+                    false,
+                    '彼女とデート！'
                   ),
                   new TodoItem(
                     sampleListId,
                     '英語のテスト',
-                    '英語のテストの時間！',
-                    dayjs().add(10, 'minute').toDate()
+                    new Date(),
+                    true,
+                    '英語のテストの時間！'
                   )
                 ];
 
@@ -91,17 +95,31 @@ const Login: FunctionalComponent = () => {
             }
           );
           Cookies.set('TodoApp-User-Cookie', userName, { expires: 7 });
-          anime({
-            targets: pageRef.current,
-            keyframes: [
-              { scale: 0.92 },
-              { opacity: 0, easing: 'easeInOutQuad' }
-            ],
-            duration: 1500,
-            complete: () => {
-              history.push('/dashboard');
-            }
+          const tl = anime.timeline({
+            duration: 1000,
+            targets: pageRef.current
           });
+
+          tl.add({
+            scale: 0.92
+          })
+            .add(
+              {
+                borderWidth: 0,
+                easing: 'easeInOutExpo'
+              },
+              '-=1000'
+            )
+            .add(
+              {
+                opacity: 0,
+                easing: 'easeInOutExpo',
+                complete: () => {
+                  route('/dashboard');
+                }
+              },
+              '-=700'
+            );
         } catch (e) {
           setInputError(
             'DB アプリケーションエラー、ブラウザーを更新してください'
@@ -111,11 +129,12 @@ const Login: FunctionalComponent = () => {
         setInputError('スペースは使えません');
       }
     },
-    [history, userName]
+    [userName]
   );
 
   // オペニング アニメーション
   useEffect(() => {
+    document.getElementById('preact_root')?.removeAttribute('style');
     if (!userCookie) {
       const tl = anime.timeline({ duration: 500 });
 
@@ -129,13 +148,16 @@ const Login: FunctionalComponent = () => {
           targets: formRef.current,
           height: [0, anime.get(formRef.current, 'height')],
           opacity: [0, 1],
-          duration: 900,
-          update: (e) => {
-            if (Number(e.progress.toFixed(0)) > 10) {
-              document.getElementById('preact_root')?.classList.add('border');
-            }
-          }
+          duration: 900
         })
+        .add(
+          {
+            targets: pageRef.current,
+            borderWidth: 16,
+            easing: 'easeInOutExpo'
+          },
+          '-=600'
+        )
         .add(
           {
             targets: [
@@ -147,11 +169,11 @@ const Login: FunctionalComponent = () => {
           },
           '-=500'
         );
-    } else {
-      // user cookieがあれば、このページにredirectします
-      history.push('/dashboard');
     }
-  }, [history, userCookie]);
+    if (userCookie) {
+      route('/dashboard');
+    }
+  }, [path, userCookie]);
 
   if (userCookie) {
     return null;

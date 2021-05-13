@@ -8,37 +8,76 @@
 }
 
 .listsWrapper {
-  display: flex;
-  flex-wrap: wrap;
   width: 100%;
   font-size: 0;
+  flex: 1;
+  overflow: auto;
+  padding: 16px;
 }
 
 .listsWrapper li {
-  flex-basis: calc(50% - 16px);
-  margin: 8px;
-  font-size: 18px;
-}
-
-.listsWrapper li button {
   width: 100%;
-  height: 100%;
+  min-height: 64px;
+  font-size: 18px;
+  background-color: var(--primary-bg-color);
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-flow: row-reverse;
+  padding-right: 8px;
+}
+
+.listsWrapper li:not(:last-child) {
+  margin-bottom: 16px;
+}
+
+.listsWrapper header button {
+  font-size: 0;
+  height: 50px;
+  width: 50px;
+  background-color: var(--primary-color);
+}
+
+.listsWrapper header button svg {
+  width: 24px;
+  fill: #fff;
+}
+
+.listsWrapper li section {
   line-height: 1.4;
+  padding: 4px;
+  display: flex;
+  user-select: none;
+  flex: 1;
+  padding-right: 12px;
+  position: absolute;
+  left: -4px;
+  right: 8px;
+  width: 100%;
+  padding-left: 8px;
+  min-height: 64px;
+  align-items: center;
 }
 
-.listsWrapper li button h4 {
+.listsWrapper li section:active {
+  transform: scale(0.96);
+}
+
+.listsWrapper li section h4 {
   margin: 0;
-}
-
-.listsWrapper li button p {
-  margin-top: 8px;
+  word-break: break-all;
 }
 
 .listsContainer {
-  padding: 8px !important;
   width: 100%;
+  flex: 1;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  padding: 1rem 0.5rem !important;
 }
 
 .listsContainer legend {
-  font-size: 1rem !important;
+  font-size: 1.3rem !important;
 }

@@ -18,7 +18,7 @@ export class AppDatabase extends Dexie {
     this.version(1).stores({
       users: '&gid, name',
       todoLists: '&gid, userId, type, todoList',
-      todoItems: '&gid, todolistId, type, todoItem'
+      todoItems: '&gid, todoListId, type, todoItem'
     });
 
     // Let's physically map Contact class to contacts table.

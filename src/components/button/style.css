@@ -34,7 +34,7 @@
 }
 
 .btn:hover {
-  background-color: var(--shade, #e7e7e7);
+  background-color: var(--shade, #d6d6d6);
 }
 
 .btn:hover:not(.isDisabled)::after {

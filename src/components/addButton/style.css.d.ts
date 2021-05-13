@@ -1,5 +1,6 @@
 declare const styles: {
   readonly "addButton": string;
+  readonly "absolute": string;
   readonly "circle": string;
   readonly "plus": string;
   readonly "text": string;

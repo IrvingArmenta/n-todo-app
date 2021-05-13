@@ -24,6 +24,6 @@
 }
 
 /** safari fix */
-.isSafari {
+.isSafariBrowser {
   background-color: var(--app-background-color);
 }

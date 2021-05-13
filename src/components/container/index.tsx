@@ -1,5 +1,6 @@
 import { FunctionalComponent, h } from 'preact';
-import style, { isSafari } from './style.css';
+import { isSafari } from '../../utils';
+import style from './style.css';
 
 type ContainerType = {
   title?: string;
@@ -15,7 +16,11 @@ const Container: FunctionalComponent<ContainerType> = (props) => {
         } pixel-border app-container ${className || ''}`}
         {...rest}
       >
-        <legend className={`${style.title} ${isSafari ? style.isSafari : ''}`}>
+        <legend
+          className={`${style.title} ${
+            isSafari() ? style.isSafariBrowser : ''
+          }`}
+        >
           {title}
         </legend>
         {children}

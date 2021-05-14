@@ -253,8 +253,7 @@ const ListView: FunctionalComponent<ListViewType> = (props) => {
                 handleTodoEdit(editingTodo, 'SUBMIT', todoTitle, shortDesc);
               }
             }
-          }
-          if (formMode === 'CREATE') {
+          } else if (formMode === 'CREATE') {
             setTodoTitle('');
           }
         }}

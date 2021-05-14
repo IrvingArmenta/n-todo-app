@@ -8,7 +8,7 @@ export default {
    * @param {WebpackConfigHelpers} helpers - object with useful helpers for working with the webpack config.
    * @param {object} options - this is mainly relevant for plugins (will always be empty in the config), default to an empty object
    **/
-  webpack(config, env, helpers) {
+  webpack(config) {
     /**
      * Removing svg from the url-loader in webpack config
      * and Adding svg support with @svgr/webpack

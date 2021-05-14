@@ -1,6 +1,6 @@
 .addButton {
-  width: 80px;
-  height: 80px;
+  width: 50px;
+  height: 50px;
   position: relative;
   border: 0;
   padding: 0;
@@ -40,8 +40,8 @@
 }
 
 .addButton .circle {
-  width: 84px;
-  height: 84px;
+  width: 54px;
+  height: 54px;
   top: -1px;
   left: -1px;
 }
@@ -56,8 +56,9 @@
 }
 
 .text {
+  left: -55px;
+  font-size: 12px;
   position: absolute;
-  left: calc(-1 * var(--size, 75px));
   top: 50%;
   transform: translateY(-50%) translateX(2px);
   pointer-events: none;
@@ -89,6 +90,24 @@
   background-color: #dbdbdb;
 }
 
+@media (min-width: 404px) {
+  .text {
+    left: calc(-1 * var(--text-size));
+    font-size: inherit;
+  }
+  .addButton {
+    width: 80px;
+    height: 80px;
+  }
+  .addButton .circle {
+    width: 84px;
+    height: 84px;
+    top: -1px;
+    left: -1px;
+  }
+}
+
 .size {
-  --size: 90px;
+  --text-size: 90px;
+  --button-size: 80px;
 }

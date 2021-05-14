@@ -25,7 +25,7 @@ const AddButton: FunctionalComponent<
         version="1.0"
         preserveAspectRatio="xMidYMid meet"
         viewBox="10 0 300 300"
-        className={`${style.circle} ${style.size}`}
+        className={style.circle}
       >
         <g
           transform="translate(0.000000,300.000000) scale(0.100000,-0.100000)"

@@ -35,7 +35,9 @@ const Header: FunctionalComponent<HeaderType> = (props) => {
       <Timer />
       {Cookies.get('TodoApp-User-Cookie') && (
         <nav>
-          <Button onClick={handleLogout}>ログアウト</Button>
+          <Button style={{ whiteSpace: 'nowrap' }} onClick={handleLogout}>
+            ログアウト
+          </Button>
         </nav>
       )}
     </header>

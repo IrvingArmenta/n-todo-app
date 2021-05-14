@@ -252,6 +252,7 @@
   background-color: var(--primary-bg-color);
   margin: 0 6px;
   font-size: 14px;
+  min-height: 48px;
 }
 
 .filtersWrap button.active {

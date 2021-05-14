@@ -13,3 +13,7 @@ export const isSafari = () => {
     );
   }
 };
+
+export const itsNotEmpty = (str: string) => {
+  return str.replace(/\s/g, '').length !== 0;
+};

@@ -81,6 +81,7 @@ body {
   flex: 1;
   padding: 24px;
   overflow: auto;
+  transition: filter 200ms ease-in-out;
 }
 
 .app-page.centered {

@@ -5,13 +5,12 @@ import useNewTimer from '../hooks/useTimer';
 
 type TimerType = {
   onTimeTick?: (time: Dayjs) => void;
-  hideJSX?: boolean;
   fixed?: boolean;
   className?: string;
 };
 
 const Timer: FunctionalComponent<TimerType> = (props) => {
-  const { onTimeTick, hideJSX, fixed, className } = props;
+  const { onTimeTick, fixed, className } = props;
   const timer = useNewTimer(dayjs().locale('ja'));
 
   useEffect(() => {
@@ -19,10 +18,6 @@ const Timer: FunctionalComponent<TimerType> = (props) => {
       onTimeTick(timer);
     }
   }, [timer, onTimeTick]);
-
-  if (hideJSX) {
-    return null;
-  }
 
   return (
     <time

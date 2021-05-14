@@ -17,6 +17,7 @@ import { route } from 'preact-router';
 import { TodoList } from '../../api/models/todoList';
 import { createTodoList } from '../../api/helpers';
 import DeleteIcon from '../../assets/img/delete-icon.svg';
+import { itsNotEmpty } from '../../utils';
 
 type DashboardType = {
   userFromUrl?: string;
@@ -111,17 +112,21 @@ const Dashboard: FunctionalComponent<DashboardType> = () => {
       <h1>
         ようこそ、<span>{userFromDb?.name}</span>
       </h1>
-
       <Modal
         open={toggleModal}
+        modalHeight={240}
         onModalOpen={() => listTitleInputRef.current.focus()}
         onModalClose={() => {
           setListTitle('');
           listUpdater.current++;
         }}
         onSubmitButtonClick={() => {
-          if (listTitleInputRef.current.checkValidity()) {
-            handleCreateList(listTitle);
+          if (itsNotEmpty(listTitle)) {
+            if (listTitleInputRef.current.checkValidity()) {
+              handleCreateList(listTitle);
+            }
+          } else {
+            setListTitle('');
           }
         }}
         onCancelButtonClick={() => {
@@ -188,6 +193,7 @@ const Dashboard: FunctionalComponent<DashboardType> = () => {
         </FlipMove>
       </Container>
       <AddButton
+        style={{ '--button-size': '90px' }}
         onClick={() => {
           setToggleModal((p) => !p);
         }}

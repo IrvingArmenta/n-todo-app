@@ -41,6 +41,7 @@ const Login: FunctionalComponent<{ path: string }> = (props) => {
         !userName.trim().includes(' ')
       ) {
         setInputError('');
+        const userN = userName.trim();
         try {
           await db.transaction(
             'rw',
@@ -50,11 +51,11 @@ const Login: FunctionalComponent<{ path: string }> = (props) => {
             async () => {
               const userExists = await db.users
                 .where('name')
-                .equals(userName)
+                .equals(userN)
                 .first();
 
               if (!userExists) {
-                const newUser = new User(userName);
+                const newUser = new User(userN);
 
                 const newUserID = await createUser(db, newUser);
 

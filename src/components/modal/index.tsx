@@ -1,5 +1,6 @@
 import anime from 'animejs';
 import { Fragment, FunctionalComponent, h } from 'preact';
+import { createPortal } from 'preact/compat';
 import { useRef } from 'preact/hooks';
 import { Transition } from 'react-transition-group';
 import { TransitionProps } from 'react-transition-group/Transition';
@@ -8,8 +9,9 @@ import style from './style.css';
 
 type ModalType = {
   open?: boolean;
-  onModalOpen?: (node: HTMLFormElement) => void;
+  onModalOpen?: (node: HTMLDivElement) => void;
   onModalClose?: () => void;
+  modalHeight?: number;
   onSubmitButtonClick?: (
     e: h.JSX.TargetedMouseEvent<HTMLButtonElement>
   ) => void;
@@ -19,7 +21,10 @@ type ModalType = {
   transitionProps?: TransitionProps;
 };
 
-const Modal: FunctionalComponent<ModalType> = (props) => {
+const ModalBody: FunctionalComponent<ModalType> = ({
+  modalHeight = 380,
+  ...props
+}) => {
   const {
     children,
     open,
@@ -28,7 +33,7 @@ const Modal: FunctionalComponent<ModalType> = (props) => {
     onSubmitButtonClick,
     onCancelButtonClick
   } = props;
-  const modalBodyRef = useRef<HTMLFormElement>(null);
+  const modalBodyRef = useRef<HTMLDivElement>(null);
   return (
     <Fragment>
       <Transition
@@ -41,12 +46,12 @@ const Modal: FunctionalComponent<ModalType> = (props) => {
           anime.remove(modalBodyRef.current);
           anime({
             targets: modalBodyRef.current,
-            height: [0, 330],
+            height: [0, modalHeight],
             opacity: [0, 1],
             easing: 'easeInOutExpo',
             duration: 900,
             complete: () => {
-              document.documentElement.classList.add('modal-open');
+              document.querySelector('.app-page')?.classList.add('modal-open');
               if (onModalOpen) {
                 onModalOpen(modalBodyRef.current);
               }
@@ -54,6 +59,7 @@ const Modal: FunctionalComponent<ModalType> = (props) => {
           });
         }}
         onExiting={() => {
+          document.querySelector('.app-page')?.classList.remove('modal-open');
           anime.remove(modalBodyRef.current);
           anime({
             targets: modalBodyRef.current,
@@ -69,38 +75,49 @@ const Modal: FunctionalComponent<ModalType> = (props) => {
           });
         }}
       >
-        <form
-          style={{ '--color': '#fff' }}
+        <div
           ref={modalBodyRef}
-          className={`${style.modalStyle} pixel-border`}
-          onSubmit={(e) => e.preventDefault()}
+          className={`${style.modalStyle} pixel-border app-modal`}
         >
-          {children}
-          <div className={style.buttonsWrap}>
-            <Button
-              onClick={(e) => {
-                if (onSubmitButtonClick) {
-                  onSubmitButtonClick(e);
-                }
-              }}
-              type="submit"
-              variant="secondary"
-            >
-              OK
-            </Button>
-            <Button
-              onClick={(e) => {
-                if (onCancelButtonClick) {
-                  onCancelButtonClick(e);
-                }
-              }}
-            >
-              CANCEL
-            </Button>
-          </div>
-        </form>
+          <span role="img" className={style.overlay} />
+          <form
+            style={{ '--color': '#fff' }}
+            onSubmit={(e) => e.preventDefault()}
+          >
+            {children}
+            <div className={style.buttonsWrap}>
+              <Button
+                onClick={(e) => {
+                  if (onSubmitButtonClick) {
+                    onSubmitButtonClick(e);
+                  }
+                }}
+                type="submit"
+                variant="secondary"
+              >
+                OK
+              </Button>
+              <Button
+                onClick={(e) => {
+                  if (onCancelButtonClick) {
+                    onCancelButtonClick(e);
+                  }
+                }}
+              >
+                CANCEL
+              </Button>
+            </div>
+          </form>
+        </div>
       </Transition>
     </Fragment>
+  );
+};
+
+const Modal: FunctionalComponent<ModalType> = (props) => {
+  const container = document.body;
+  return (
+    <Fragment>{createPortal(<ModalBody {...props} />, container)}</Fragment>
   );
 };
 

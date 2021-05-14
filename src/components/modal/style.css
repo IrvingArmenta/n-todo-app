@@ -28,6 +28,10 @@
   margin-right: 16px;
 }
 
-.modalStyle > *:not(:last-child) {
+.modalStyle form > *:not(:last-child) {
   margin-bottom: 12px;
+}
+
+.overlay {
+  background-color: rgba(0, 0, 0, 0.4);
 }

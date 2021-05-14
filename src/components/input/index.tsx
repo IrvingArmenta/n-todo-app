@@ -15,7 +15,8 @@ const Input = forwardRef<
 >((props, ref) => {
   const { className, label, setsumei, error, style, ...rest } = props;
   const errorRef = useRef<HTMLDivElement>(null);
-  const valueCount = typeof props.value === 'string' ? props.value.length : 0;
+  const valueCount =
+    typeof props.value === 'string' ? props.value.replace(/\s/g, '').length : 0;
 
   return (
     <div className={styleCss.inputWrap} style={style}>

@@ -9,7 +9,7 @@ import { route } from 'preact-router';
 import { db } from '../../api/db';
 import { Transition } from 'react-transition-group';
 import Cookies from 'js-cookie';
-import { sleep } from '../../utils';
+import { itsNotEmpty, sleep } from '../../utils';
 
 // hooks
 import { useLiveQuery } from 'dexie-react-hooks';
@@ -50,7 +50,6 @@ const ListView: FunctionalComponent<ListViewType> = (props) => {
   const [shortDesc, setShortDesc] = useState('');
   const titleInputRef = useRef<HTMLInputElement>(null);
   const [formMode, setForMode] = useState<'CREATE' | 'EDIT'>('CREATE');
-
   const [filters, setFilters] = useState<{
     type: 'hideOnGoing' | 'hideDone' | 'showAll';
   }>(() => ({ type: 'showAll' }));
@@ -86,11 +85,13 @@ const ListView: FunctionalComponent<ListViewType> = (props) => {
     setActiveTodo('');
   });
 
+  // indexedDB dexie fetch
   const listInfo = useLiveQuery(
     () => db.todoLists.where('gid').equals(listId).first(),
     [listId]
   );
 
+  // indexedDB dexie fetch
   const listTodos = useLiveQuery(async () => {
     if (order) {
       return await db.todoItems
@@ -243,13 +244,18 @@ const ListView: FunctionalComponent<ListViewType> = (props) => {
           }
         }}
         onSubmitButtonClick={() => {
-          if (titleInputRef.current.checkValidity()) {
-            if (formMode === 'CREATE') {
-              handleCreateTodo(todoTitle, shortDesc);
+          if (itsNotEmpty(todoTitle)) {
+            if (titleInputRef.current.checkValidity()) {
+              if (formMode === 'CREATE') {
+                handleCreateTodo(todoTitle, shortDesc);
+              }
+              if (formMode === 'EDIT') {
+                handleTodoEdit(editingTodo, 'SUBMIT', todoTitle, shortDesc);
+              }
             }
-            if (formMode === 'EDIT') {
-              handleTodoEdit(editingTodo, 'SUBMIT', todoTitle, shortDesc);
-            }
+          }
+          if (formMode === 'CREATE') {
+            setTodoTitle('');
           }
         }}
         onCancelButtonClick={() => setToggleModal(false)}
@@ -336,7 +342,7 @@ const ListView: FunctionalComponent<ListViewType> = (props) => {
           className={style.customContainer}
           style={{ '--checkColor': 'red' }}
         >
-          {listTodos?.length === 0 ? 'no results' : ''}
+          {listTodos?.length === 0 && '表示するToDoはありません'}
           <FlipMove
             typeName="ul"
             duration={500}
@@ -445,7 +451,13 @@ const ListView: FunctionalComponent<ListViewType> = (props) => {
           </FlipMove>
         </div>
       </div>
-      <footer style={{ justifyContent: 'space-between ', display: 'flex' }}>
+      <footer
+        style={{
+          justifyContent: 'space-between ',
+          display: 'flex',
+          alignItems: 'center'
+        }}
+      >
         <div className={style.filtersWrap}>
           <h4>フィルター</h4>
           <span>

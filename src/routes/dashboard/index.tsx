@@ -17,7 +17,8 @@ import { route } from 'preact-router';
 import { TodoList } from '../../api/models/todoList';
 import { createTodoList } from '../../api/helpers';
 import DeleteIcon from '../../assets/img/delete-icon.svg';
-import { itsNotEmpty } from '../../utils';
+import { itsNotEmpty, sleep } from '../../utils';
+import Button from '../../components/button';
 
 type DashboardType = {
   userFromUrl?: string;
@@ -147,7 +148,7 @@ const Dashboard: FunctionalComponent<DashboardType> = () => {
         <button
           className="pixel-border"
           onClick={() => setOrder((prev) => !prev)}
-          style={{ marginBottom: 8 }}
+          style={{ marginBottom: 16 }}
         >
           {`日付 ${order ? '▲' : '▼'}`}
         </button>
@@ -161,18 +162,8 @@ const Dashboard: FunctionalComponent<DashboardType> = () => {
           delay={0}
         >
           {usersTodoLists?.map((todolist) => (
-            <li key={todolist.gid} className="pixel-border">
-              <header>
-                <button
-                  className="pixel-border"
-                  onClick={() => handleListDelete(todolist.gid || '')}
-                >
-                  <DeleteIcon />
-                </button>
-              </header>
-              <section
-                tabIndex={0}
-                role="button"
+            <li key={todolist.gid}>
+              <Button
                 onClick={() => {
                   anime({
                     targets: dbPageRef.current,
@@ -186,8 +177,19 @@ const Dashboard: FunctionalComponent<DashboardType> = () => {
                   });
                 }}
               >
-                <h4>{todolist.name}</h4>
-              </section>
+                {todolist.name}
+              </Button>
+              <span>
+                <Button
+                  variant="primary"
+                  onClick={async () => {
+                    await sleep(150);
+                    handleListDelete(todolist.gid || '');
+                  }}
+                >
+                  <DeleteIcon />
+                </Button>
+              </span>
             </li>
           ))}
         </FlipMove>

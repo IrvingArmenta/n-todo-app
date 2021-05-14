@@ -11,67 +11,61 @@
   width: 100%;
   font-size: 0;
   flex: 1;
-  overflow: auto;
-  padding: 16px;
+  overflow-y: auto;
+  padding: 8px;
 }
 
 .listsWrapper li {
-  width: 100%;
+  width: calc(100% - 8px);
   min-height: 64px;
   font-size: 18px;
-  background-color: var(--primary-bg-color);
   position: relative;
   display: flex;
-  align-items: center;
-  flex-flow: row-reverse;
-  padding-right: 8px;
 }
 
 .listsWrapper li:not(:last-child) {
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
-.listsWrapper header button {
+.listsWrapper li > span {
+  display: block;
+  height: 64px;
+  width: 60px;
+  margin-left: 8px;
+}
+
+/** Delete button */
+.listsWrapper li > span button {
   font-size: 0;
-  height: 50px;
-  width: 50px;
-  background-color: var(--primary-color);
+  width: 100%;
+  height: 100%;
+  transition: transform 150ms ease-in-out;
 }
 
-.listsWrapper header button svg {
+.listsWrapper li > span button:active {
+  transform: scale(0.96);
+}
+
+.listsWrapper li > span button svg {
   width: 24px;
   fill: #fff;
 }
 
-.listsWrapper header {
-  position: absolute;
-  right: 8px;
-  z-index: 8;
-}
-
-.listsWrapper li section {
+/** Go to List Button */
+.listsWrapper li > button {
   line-height: 1.4;
-  padding: 4px;
   display: flex;
   user-select: none;
   flex: 1;
-  padding-right: 64px;
-  position: absolute;
-  left: -4px;
-  right: 8px;
   width: 100%;
   padding-left: 8px;
   min-height: 64px;
   align-items: center;
+  word-break: break-all;
 }
 
 .listsWrapper li section:active {
   transform: scale(0.96);
-}
-
-.listsWrapper li section h4 {
-  margin: 0;
-  word-break: break-all;
 }
 
 .listsContainer {

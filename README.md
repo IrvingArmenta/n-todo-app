@@ -1,19 +1,30 @@
-# nTodo-app
+# TodoApp+
+## レトロゲームなスタイルのTodoアプリPWA
+### フロントエンドスタック 
+- パッケージマネージャー:  
+  - yarn - https://classic.yarnpkg.com/lang/en/
+- フレームワーク: 
+  - Preact X - https://preactjs.com/
+- スタイル:
+  - CSS Modules - https://github.com/css-modules/css-modules/blob/master/README.md
+- アプリケーションデータ管理:
+  - IndexedDB - https://developer.mozilla.org/ja/docs/Web/API/IndexedDB_API
+  - DexieDB - https://dexie.org/
+    - useLiveQuery Hook - https://dexie.org/docs/dexie-react-hooks/useLiveQuery()
+  - js-cookie - https://github.com/js-cookie/js-cookie
 
 ## CLI Commands
-*   `yarn install`: Installs dependencies
+*   `yarn install`: デペンデンシーインストールします
 
-*   `yarn dev`: Run a development, HMR server
+*   `yarn dev`: ポート8080で開発サーバーを実行します
 
-*   `yarn serve`: Run a production-like server
+*   `yarn serve`: 本番サーバーを実行する
 
-*   `yarn build`: Production-ready build
+*   `yarn build`: アプリケーションをビルドする
 
-*   `yarn lint`: Pass TypeScript files using ESLint
+*   `yarn lint`: eslintを使用してすべてのtypescriptファイルをリントします
 
-*   `yarn test`: Run Jest and Enzyme with
-    [`enzyme-adapter-preact-pure`](https://github.com/preactjs/enzyme-adapter-preact-pure) for
-    your tests
+*   `yarn test`: JestとEnzymeを[`enzyme-adapter-preact-pure`](https://github.com/preactjs/enzyme-adapter-preact-pure)で実行します 
 
 
-For detailed explanation on how things work, checkout the [CLI Readme](https://github.com/developit/preact-cli/blob/master/README.md).
+ 物事がどのように機能するかの詳細な説明については、[CLI Readme](https://github.com/developit/preact-cli/blob/master/README.md).

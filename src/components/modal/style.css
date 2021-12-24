@@ -1,16 +1,30 @@
 .modalStyle {
   position: fixed;
-  top: 50%;
-  transform: translateY(-50%);
-  left: 16px;
-  right: 16px;
-  background-color: var(--primary-color);
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   z-index: 30;
   overflow: hidden;
   padding: 16px;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  backdrop-filter: blur(4px);
+}
+
+.modalStyle form {
+  position: relative;
+    z-index: 2;
+    background: white;
+    padding: 10px;
+    background: var(--primary-color);
+    border-radius: 8px;
+    max-width: 640px;
+    width: calc(100% - 32px);
+    margin: auto;
+    display: block;
+    padding: 16px;
 }
 
 .modalStyle .buttonsWrap {
@@ -33,5 +47,12 @@
 }
 
 .overlay {
+  height: 100%;
+  display: block;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  position: absolute;
   background-color: rgba(0, 0, 0, 0.4);
 }

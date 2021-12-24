@@ -43,7 +43,7 @@ const ListView: FunctionalComponent<ListViewType> = (props) => {
   const listUpdate = useRef<number>(0);
   const [activeTodo, setActiveTodo] = useState('');
   const [editingTodo, setEditingTodo] = useState('');
-  const activeTodoRef = useRef<HTMLElement>(null);
+  const activeTodoRef = useRef<HTMLElement | null>(null);
 
   // フォームデータ
   const [todoTitle, setTodoTitle] = useState('');
@@ -229,11 +229,17 @@ const ListView: FunctionalComponent<ListViewType> = (props) => {
   }
 
   return (
-    <div className={`${style.listViewWrapper} app-page`} ref={listViewPageRef}>
+    <div
+      id="appPage"
+      className={`${style.listViewWrapper} app-page`}
+      ref={listViewPageRef}
+    >
       <Modal
         open={toggleModal}
         onModalOpen={() => {
-          titleInputRef.current.focus();
+          if (titleInputRef.current) {
+            titleInputRef.current.focus();
+          }
         }}
         onModalClose={() => {
           setEditingTodo('');
@@ -245,7 +251,10 @@ const ListView: FunctionalComponent<ListViewType> = (props) => {
         }}
         onSubmitButtonClick={() => {
           if (itsNotEmpty(todoTitle)) {
-            if (titleInputRef.current.checkValidity()) {
+            if (
+              titleInputRef.current &&
+              titleInputRef.current.checkValidity()
+            ) {
               if (formMode === 'CREATE') {
                 handleCreateTodo(todoTitle, shortDesc);
               }

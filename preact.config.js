@@ -21,12 +21,12 @@ export default {
         )
     );
 
-    config.module.rules[
-      svgLoaderIndex
-    ].test = /\.(woff2?|ttf|eot|jpe?g|png|webp|gif|mp4|mov|ogg|webm)(\?.*)?$/i;
+    config.module.rules[svgLoaderIndex].test =
+      /\.(woff2?|ttf|eot|jpe?g|png|webp|gif|mp4|mov|ogg|webm)(\?.*)?$/i;
 
     config.module.rules.push({
       test: /\.svg$/,
+      issuer: /\.[jt]sx?$/,
       use: ['@svgr/webpack']
     });
   }

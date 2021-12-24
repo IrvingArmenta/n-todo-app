@@ -9,7 +9,7 @@ import style from './style.css';
 
 type ModalType = {
   open?: boolean;
-  onModalOpen?: (node: HTMLDivElement) => void;
+  onModalOpen?: (node: HTMLFormElement) => void;
   onModalClose?: () => void;
   modalHeight?: number;
   onSubmitButtonClick?: (
@@ -21,10 +21,7 @@ type ModalType = {
   transitionProps?: TransitionProps;
 };
 
-const ModalBody: FunctionalComponent<ModalType> = ({
-  modalHeight = 380,
-  ...props
-}) => {
+const ModalBody: FunctionalComponent<ModalType> = ({ ...props }) => {
   const {
     children,
     open,
@@ -33,56 +30,99 @@ const ModalBody: FunctionalComponent<ModalType> = ({
     onSubmitButtonClick,
     onCancelButtonClick
   } = props;
-  const modalBodyRef = useRef<HTMLDivElement>(null);
+  const modalWrapRef = useRef<HTMLDivElement>(null);
+  const modalBodyRef = useRef<HTMLFormElement>(null);
+  const timeout = 800;
   return (
     <Fragment>
       <Transition
-        timeout={900}
+        timeout={{ enter: timeout, exit: timeout - 300 }}
         in={open}
-        nodeRef={modalBodyRef}
+        nodeRef={modalWrapRef}
         mountOnEnter={true}
         unmountOnExit={true}
         onEntering={() => {
-          anime.remove(modalBodyRef.current);
-          anime({
-            targets: modalBodyRef.current,
-            height: [0, modalHeight],
-            opacity: [0, 1],
+          const root = document.getElementById('preact_root');
+          anime.remove(modalWrapRef.current);
+          const modalTL = anime.timeline({
             easing: 'easeInOutExpo',
-            duration: 900,
-            complete: () => {
-              document.querySelector('.app-page')?.classList.add('modal-open');
-              if (onModalOpen) {
+            begin: () => {
+              if (root) {
+                root.setAttribute('aria-hidden', 'true');
+                root.classList.add('preact_root--open-modal');
+              }
+              if (onModalOpen && modalBodyRef.current) {
                 onModalOpen(modalBodyRef.current);
+              }
+            },
+            complete: () => {
+              const focusable =
+                modalBodyRef.current?.querySelectorAll<HTMLElement>(
+                  'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+                );
+
+              if (focusable) {
+                focusable[0].focus();
               }
             }
           });
+          modalTL
+            .add({
+              targets: modalWrapRef.current,
+              opacity: [0, 1],
+              duration: timeout / 2
+            })
+            .add(
+              {
+                targets: modalBodyRef.current,
+                scale: [0.8, 1],
+                opacity: [0, 1],
+                duration: timeout / 2
+              },
+              '-=300'
+            );
         }}
         onExiting={() => {
-          document.querySelector('.app-page')?.classList.remove('modal-open');
-          anime.remove(modalBodyRef.current);
-          anime({
-            targets: modalBodyRef.current,
-            opacity: 0,
-            height: 0,
+          anime.remove(modalWrapRef.current);
+
+          const modalTLExit = anime.timeline({
             easing: 'easeInOutExpo',
-            duration: 900,
             complete: () => {
+              const root = document.getElementById('preact_root');
+              if (root) {
+                root.removeAttribute('aria-hidden');
+                root.classList.remove('preact_root--open-modal');
+              }
               if (onModalClose) {
                 onModalClose();
               }
             }
           });
+          modalTLExit
+            .add({
+              targets: modalBodyRef.current,
+              scale: 0.8,
+              opacity: 0,
+              duration: timeout / 2
+            })
+            .add(
+              {
+                targets: modalWrapRef.current,
+                opacity: [1, 0],
+                duration: timeout / 2
+              },
+              '-=300'
+            );
         }}
       >
-        <div
-          ref={modalBodyRef}
-          className={`${style.modalStyle} pixel-border app-modal`}
-        >
+        <div ref={modalWrapRef} className={`${style.modalStyle} app-modal`}>
           <span role="img" className={style.overlay} />
           <form
             style={{ '--color': '#fff' }}
+            class="pixel-border"
             onSubmit={(e) => e.preventDefault()}
+            role="dialog"
+            ref={modalBodyRef}
           >
             {children}
             <div className={style.buttonsWrap}>

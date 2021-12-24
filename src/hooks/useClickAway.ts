@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { RefObject, useEffect, useRef } from 'react';
+import { MutableRef } from 'preact/hooks';
+import { useEffect, useRef } from 'react';
 import { off, on } from './utils';
 
 const defaultEvents = ['mousedown', 'touchstart'];
 
 const useClickAway = <E extends Event = Event>(
-  ref: RefObject<HTMLElement | null>,
+  ref: MutableRef<HTMLElement | null>,
   onClickAway: (event: E) => void,
   events: string[] = defaultEvents
 ) => {

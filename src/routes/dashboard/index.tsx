@@ -116,14 +116,14 @@ const Dashboard: FunctionalComponent<DashboardType> = () => {
       <Modal
         open={toggleModal}
         modalHeight={240}
-        onModalOpen={() => listTitleInputRef.current.focus()}
+        onModalOpen={() => listTitleInputRef.current?.focus()}
         onModalClose={() => {
           setListTitle('');
           listUpdater.current++;
         }}
         onSubmitButtonClick={() => {
           if (itsNotEmpty(listTitle)) {
-            if (listTitleInputRef.current.checkValidity()) {
+            if (listTitleInputRef.current?.checkValidity()) {
               handleCreateList(listTitle);
             }
           } else {

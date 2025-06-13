@@ -1,23 +1,28 @@
-import { FunctionalComponent, h } from 'preact';
-import PlusIcon from '../../assets/img/plus-sign.svg';
-import style from './style.css';
+import type { FunctionalComponent } from 'preact';
+import PlusIcon from '../../assets/img/plus-sign.svg?react';
+import style from './style.module.css';
+import clsx from '@utils';
+import type { HTMLAttributes } from 'preact/compat';
 
 const AddButton: FunctionalComponent<
   {
     closeMode?: boolean;
     text?: string;
     absolute?: boolean;
-  } & h.JSX.HTMLAttributes<HTMLButtonElement>
+    disabled?: boolean;
+  } & HTMLAttributes<HTMLButtonElement>
 > = ({ text = '追加する', ...props }) => {
   const { closeMode, ...rest } = props;
   return (
     <button
       {...rest}
-      className={`${style.addButton} ${style.size} ${
-        closeMode ? style.closeMode : ''
-      } ${props.absolute ? style.absolute : ''} ${
-        props.disabled ? style.isDisabled : ''
-      }`}
+      className={clsx(
+        style.addButton,
+        style.size,
+        closeMode && style.closeMode,
+        props.absolute && style.absolute,
+        props.disabled && style.isDisabled
+      )}
     >
       <span className={style.text}>{text}</span>
       <svg
@@ -27,6 +32,7 @@ const AddButton: FunctionalComponent<
         viewBox="10 0 300 300"
         className={style.circle}
       >
+        <title>Plus Icon</title>
         <g
           transform="translate(0.000000,300.000000) scale(0.100000,-0.100000)"
           fill="#000000"

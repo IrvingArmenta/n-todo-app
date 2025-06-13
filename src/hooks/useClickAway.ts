@@ -1,33 +1,52 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { MutableRef } from 'preact/hooks';
-import { useEffect, useRef } from 'react';
-import { off, on } from './utils';
+import type { RefObject } from 'react';
+import useEventListener from './useEventListener';
 
-const defaultEvents = ['mousedown', 'touchstart'];
+type EventType =
+  | 'mousedown'
+  | 'mouseup'
+  | 'touchstart'
+  | 'touchend'
+  | 'focusin'
+  | 'focusout';
 
-const useClickAway = <E extends Event = Event>(
-  ref: MutableRef<HTMLElement | null>,
-  onClickAway: (event: E) => void,
-  events: string[] = defaultEvents
-) => {
-  const savedCallback = useRef(onClickAway);
-  useEffect(() => {
-    savedCallback.current = onClickAway;
-  }, [onClickAway]);
-  useEffect(() => {
-    const handler = (event: any) => {
-      const { current: el } = ref;
-      el && !el.contains(event.target) && savedCallback.current(event);
-    };
-    for (const eventName of events) {
-      on(document, eventName, handler);
-    }
-    return () => {
-      for (const eventName of events) {
-        off(document, eventName, handler);
+/**
+ * Custom hook that handles clicks outside a specified element.
+ * @param ref - ref for the element that will be evaluated
+ * @param handler - callback function that triggers when the click happens
+ * @param eventType - type of event
+ * @param eventListenerOptions - options that can be attached to the event listener
+ *
+ * @url https://usehooks-ts.com/react-hook/use-on-click-outside
+ */
+function useOnClickAway<T extends HTMLElement = HTMLElement>(
+  reference: RefObject<T> | RefObject<T>[],
+  handler: (event: MouseEvent | TouchEvent | FocusEvent) => void,
+  eventType: EventType = 'mousedown',
+  eventListenerOptions: AddEventListenerOptions = {}
+): void {
+  useEventListener(
+    eventType,
+    (event) => {
+      const target = event.target as Node;
+
+      // Do nothing if the target is not connected element with document
+      if (!target || !target.isConnected) {
+        return;
       }
-    };
-  }, [events, ref]);
-};
 
-export default useClickAway;
+      const isOutside = Array.isArray(reference)
+        ? reference
+            .filter((r) => Boolean(r.current))
+            .every((r) => r.current && !r.current.contains(target))
+        : reference.current && !reference.current.contains(target);
+
+      if (isOutside) {
+        handler(event);
+      }
+    },
+    undefined,
+    eventListenerOptions
+  );
+}
+
+export default useOnClickAway;

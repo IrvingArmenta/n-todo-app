@@ -1,10 +1,11 @@
-import { FunctionalComponent, h } from 'preact';
+import type { FunctionalComponent } from 'preact';
+import type { HTMLAttributes } from 'preact/compat';
 import { isSafari } from '../../utils';
-import style from './style.css';
+import style from './style.module.css';
 
 type ContainerType = {
   title?: string;
-} & h.JSX.HTMLAttributes<HTMLFieldSetElement>;
+} & HTMLAttributes<HTMLFieldSetElement>;
 
 const Container: FunctionalComponent<ContainerType> = (props) => {
   const { title, children, className, ...rest } = props;

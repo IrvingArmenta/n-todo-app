@@ -1,5 +1,4 @@
 declare const styles: {
-  readonly "errorPageWrap": string;
+  readonly errorPageWrap: string;
 };
 export = styles;
-

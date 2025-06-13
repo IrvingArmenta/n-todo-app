@@ -1,29 +1,30 @@
+import { animate, utils } from 'animejs';
+import dayjs from 'dayjs';
 /* eslint-disable jsx-a11y/click-events-have-key-events */
-import { FunctionalComponent, h } from 'preact';
-import style from './style.css';
-import anime from 'animejs';
+import type { FunctionalComponent, h } from 'preact';
+import { route } from 'preact-router';
 import { useCallback, useEffect, useRef, useState } from 'preact/hooks';
 import FlipMove from 'react-flip-move';
-import dayjs from 'dayjs';
-import { route } from 'preact-router';
-import { db } from '../../api/db';
 import { Transition } from 'react-transition-group';
-import Cookies from 'js-cookie';
-import { itsNotEmpty, sleep } from '../../utils';
+import { getCookie } from 'tiny-cookie';
+import { db } from '../../api/db';
+import clsx, { itsNotEmpty, sleep } from '../../utils';
+import style from './style.module.css';
 
 // hooks
 import { useLiveQuery } from 'dexie-react-hooks';
 import useClickAway from '../../hooks/useClickAway';
 
+import { TodoItem } from '../../api/models/todoItem';
+import DeleteIcon from '../../assets/img/delete-icon.svg?react';
+import EditIcon from '../../assets/img/edit-icon.svg?react';
+import AddButton from '../../components/addButton';
+import Button from '../../components/button';
 // components
 import Input from '../../components/input';
-import TextArea from '../../components/textarea';
 import Modal from '../../components/modal';
-import AddButton from '../../components/addButton';
-import { TodoItem } from '../../api/models/todoItem';
-import DeleteIcon from '../../assets/img/delete-icon.svg';
-import EditIcon from '../../assets/img/edit-icon.svg';
-import Button from '../../components/button';
+import TextArea from '../../components/textarea';
+import { TODO_APP_COOKIE } from '../../globals';
 
 type ListViewType = {
   listId: string;
@@ -37,7 +38,7 @@ const filtersArr = ['hideOnGoing', 'hideDone', 'showAll'] as (
 
 const ListView: FunctionalComponent<ListViewType> = (props) => {
   const { listId } = props;
-  const userCookie = Cookies.get('TodoApp-User-Cookie');
+  const userCookie = getCookie(TODO_APP_COOKIE);
   const listViewPageRef = useRef<HTMLDivElement>(null);
   const [toggleModal, setToggleModal] = useState(false);
   const listUpdate = useRef<number>(0);
@@ -65,8 +66,7 @@ const ListView: FunctionalComponent<ListViewType> = (props) => {
 
   // オエニングアニメーション
   useEffect(() => {
-    anime({
-      targets: listViewPageRef.current,
+    animate(listViewPageRef.current as HTMLElement, {
       opacity: [0, 1],
       translateX: [32, 0],
       duration: 700,
@@ -251,10 +251,7 @@ const ListView: FunctionalComponent<ListViewType> = (props) => {
         }}
         onSubmitButtonClick={() => {
           if (itsNotEmpty(todoTitle)) {
-            if (
-              titleInputRef.current &&
-              titleInputRef.current.checkValidity()
-            ) {
+            if (titleInputRef.current?.checkValidity()) {
               if (formMode === 'CREATE') {
                 handleCreateTodo(todoTitle, shortDesc);
               }
@@ -300,13 +297,12 @@ const ListView: FunctionalComponent<ListViewType> = (props) => {
             minHeight: 40
           }}
           onClick={() => {
-            anime({
-              targets: listViewPageRef.current,
+            animate(listViewPageRef.current as HTMLElement, {
               opacity: 0,
               translateX: 32,
               duration: 700,
-              easing: 'easeInOutExpo',
-              complete: () => {
+              ease: 'inOutExpo',
+              onComplete: () => {
                 route('/dashboard');
               }
             });
@@ -322,8 +318,7 @@ const ListView: FunctionalComponent<ListViewType> = (props) => {
           }}
           onClick={() => {
             if (
-              window &&
-              window.confirm(
+              window?.confirm(
                 'リスト内のすべてのアイテムが削除されます、よろしいですか？'
               )
             )
@@ -341,6 +336,7 @@ const ListView: FunctionalComponent<ListViewType> = (props) => {
         <button
           className="pixel-border"
           onClick={() => setOrder((prev) => !prev)}
+          type="button"
         >
           {`日付 ${order ? '▲' : '▼'}`}
         </button>
@@ -376,20 +372,26 @@ const ListView: FunctionalComponent<ListViewType> = (props) => {
                     <span role="img" />
                   </label>
                   <section
-                    className={`${todo.done ? style.done : ''} pixel-border ${
-                      activeTodo === `${todo.gid}-section` ? style.isActive : ''
-                    }`}
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => {
-                      if (!todo.done) {
-                        setActiveTodo(`${todo.gid}-section`);
-                      }
-                    }}
+                    className={clsx(
+                      todo.done && style.done,
+                      'pixel-border',
+                      activeTodo === `${todo.gid}-section` && style.isActive
+                    )}
                     id={`${todo.gid}-section`}
+                    style={{ position: 'relative' }}
                   >
+                    <button
+                      aria-label={`select ${todo.title} Todo`}
+                      type="button"
+                      className={style.setActiveButton}
+                      onClick={() => {
+                        if (!todo.done) {
+                          setActiveTodo(`${todo.gid}-section`);
+                        }
+                      }}
+                    />
                     <header>
-                      <h3>{todo.title}</h3>
+                      <h3 id="todoTitle">{todo.title}</h3>
                       <time dateTime={dayjs(todo.creationDate).toString()}>
                         {dayjs(todo.creationDate).locale('ja').format('LL LTS')}
                       </time>
@@ -403,9 +405,8 @@ const ListView: FunctionalComponent<ListViewType> = (props) => {
                       unmountOnExit={true}
                       in={activeTodo === `${todo.gid}-section`}
                       onEntering={(node: HTMLElement) => {
-                        anime.remove(node);
-                        anime({
-                          targets: node,
+                        utils.remove(node);
+                        animate(node, {
                           width: [0, '100%'],
                           padding: [0, 8],
                           duration: 600,
@@ -413,9 +414,8 @@ const ListView: FunctionalComponent<ListViewType> = (props) => {
                         });
                       }}
                       onExiting={(node: HTMLElement) => {
-                        anime.remove(node);
-                        anime({
-                          targets: node,
+                        utils.remove(node);
+                        animate(node, {
                           width: 0,
                           padding: 0,
                           duration: 600,
@@ -425,6 +425,7 @@ const ListView: FunctionalComponent<ListViewType> = (props) => {
                     >
                       <span className={style.actions}>
                         <button
+                          type="button"
                           onClick={async () => {
                             await sleep(150);
                             if (
@@ -440,6 +441,7 @@ const ListView: FunctionalComponent<ListViewType> = (props) => {
                           <DeleteIcon />
                         </button>
                         <button
+                          type="button"
                           onClick={() => {
                             setToggleModal(true);
                             setForMode('EDIT');
@@ -473,6 +475,7 @@ const ListView: FunctionalComponent<ListViewType> = (props) => {
               return (
                 <button
                   key={type}
+                  type="button"
                   className={`${
                     type === filters.type ? style.active : ''
                   } pixel-border`}

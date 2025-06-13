@@ -11,20 +11,21 @@
   flex-direction: column;
   justify-content: center;
   backdrop-filter: blur(4px);
+  opacity: 0;
 }
 
 .modalStyle form {
   position: relative;
-    z-index: 2;
-    background: white;
-    padding: 10px;
-    background: var(--primary-color);
-    border-radius: 8px;
-    max-width: 640px;
-    width: calc(100% - 32px);
-    margin: auto;
-    display: block;
-    padding: 16px;
+  z-index: 2;
+  background: white;
+  padding: 10px;
+  background: var(--primary-color);
+  border-radius: 8px;
+  max-width: 640px;
+  width: calc(100% - 32px);
+  margin: auto;
+  display: block;
+  padding: 16px;
 }
 
 .modalStyle .buttonsWrap {

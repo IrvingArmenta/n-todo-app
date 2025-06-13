@@ -1,31 +1,32 @@
-/* eslint-disable jsx-a11y/click-events-have-key-events */
-import { FunctionalComponent, h } from 'preact';
-import { useCallback, useEffect, useRef, useState } from 'preact/hooks';
+import { animate } from 'animejs';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { db } from '../../api/db';
-import Cookies from 'js-cookie';
+/* eslint-disable jsx-a11y/click-events-have-key-events */
+import type { FunctionalComponent } from 'preact';
+import { useCallback, useEffect, useRef, useState } from 'preact/hooks';
 import FlipMove from 'react-flip-move';
-import anime from 'animejs';
-import style from './style.css';
+import { getCookie } from 'tiny-cookie';
+import { db } from '../../api/db';
+import style from './style.module.css';
 
+import { route } from 'preact-router';
+import { createTodoList } from '../../api/helpers';
+import { TodoList } from '../../api/models/todoList';
+import DeleteIcon from '../../assets/img/delete-icon.svg?react';
+import AddButton from '../../components/addButton';
+import Button from '../../components/button';
 // components
 import Container from '../../components/container';
-import AddButton from '../../components/addButton';
 import Input from '../../components/input';
 import Modal from '../../components/modal';
-import { route } from 'preact-router';
-import { TodoList } from '../../api/models/todoList';
-import { createTodoList } from '../../api/helpers';
-import DeleteIcon from '../../assets/img/delete-icon.svg';
+import { TODO_APP_COOKIE } from '../../globals';
 import { itsNotEmpty, sleep } from '../../utils';
-import Button from '../../components/button';
 
 type DashboardType = {
   userFromUrl?: string;
 };
 
 const Dashboard: FunctionalComponent<DashboardType> = () => {
-  const userCookie = Cookies.get('TodoApp-User-Cookie');
+  const userCookie = getCookie(TODO_APP_COOKIE);
   const [toggleModal, setToggleModal] = useState(false);
   const dbPageRef = useRef<HTMLDivElement>(null);
   const listUpdater = useRef(0);
@@ -62,7 +63,7 @@ const Dashboard: FunctionalComponent<DashboardType> = () => {
     async (newListName: string, newListDescription?: string) => {
       try {
         await db.transaction('rw', db.todoLists, async () => {
-          if (userFromDb && userFromDb.gid) {
+          if (userFromDb?.gid) {
             const newList = new TodoList(
               userFromDb.gid,
               newListName,
@@ -98,8 +99,7 @@ const Dashboard: FunctionalComponent<DashboardType> = () => {
 
   // アニメーション
   useEffect(() => {
-    anime({
-      targets: dbPageRef.current,
+    animate('#dashboardPage', {
       keyframes: [{ opacity: [0, 1], easing: 'easeInOutQuad' }, { scale: 1 }]
     });
   }, []);
@@ -148,6 +148,7 @@ const Dashboard: FunctionalComponent<DashboardType> = () => {
         <button
           className="pixel-border"
           onClick={() => setOrder((prev) => !prev)}
+          type="button"
           style={{ marginBottom: 16 }}
         >
           {`日付 ${order ? '▲' : '▼'}`}
@@ -165,13 +166,12 @@ const Dashboard: FunctionalComponent<DashboardType> = () => {
             <li key={todolist.gid}>
               <Button
                 onClick={() => {
-                  anime({
-                    targets: dbPageRef.current,
+                  animate('#dashboardPage', {
                     translateX: -32,
-                    easing: 'easeInOutExpo',
+                    ease: 'inOutExpo',
                     opacity: 0,
                     duration: 700,
-                    complete: () => {
+                    onComplete: () => {
                       route(`/dashboard/${todolist.gid}`);
                     }
                   });

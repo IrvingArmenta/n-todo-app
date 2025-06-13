@@ -1,5 +1,5 @@
 import AbstractEntity from '../abstractEntity';
-import { TodoItem } from './todoItem';
+import type { TodoItem } from './todoItem';
 
 export type TodoListType = {
   userId: string;

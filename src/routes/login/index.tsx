@@ -1,39 +1,41 @@
-import style from './style.css';
-import { FunctionalComponent, h } from 'preact';
+import { type Scope, createScope, createTimeline } from 'animejs';
+import type { FunctionalComponent } from 'preact';
 import { useCallback, useEffect, useRef, useState } from 'preact/hooks';
-import Cookies from 'js-cookie';
-import Logo from '../../assets/img/todo-app-logo.svg';
-import anime from 'animejs';
-export const USER_COOKIE_NAME = 'TodoApp-User-Cookie';
+import { getCookie, setCookie } from 'tiny-cookie';
+import Logo from '../../assets/img/todo-app-logo.svg?react';
+import style from './style.module.css';
 
-// components
-import Container from '../../components/container';
-import Input from '../../components/input';
-import Button from '../../components/button';
-import Timer from '../../components/timer';
+import dayjs from 'dayjs';
+import { route } from 'preact-router';
+import type { TargetedEvent } from 'preact/compat';
+import { db } from '../../api/db';
 import {
   createTodoItemBulk,
   createTodoList,
   createUser
 } from '../../api/helpers';
-import { db } from '../../api/db';
-import { User } from '../../api/models/user';
-import { TodoList } from '../../api/models/todoList';
 import { TodoItem } from '../../api/models/todoItem';
-import dayjs from 'dayjs';
-import { route } from 'preact-router';
+import { TodoList } from '../../api/models/todoList';
+import { User } from '../../api/models/user';
+import Button from '../../components/button';
+// components
+import Container from '../../components/container';
+import Input from '../../components/input';
+import Timer from '../../components/timer';
+import { TODO_APP_COOKIE } from '../../globals';
 
 const Login: FunctionalComponent<{ path: string }> = (props) => {
   const [userName, setUserName] = useState<string | undefined>(undefined);
   const [inputError, setInputError] = useState('');
   const { path } = props;
   const formRef = useRef<HTMLFormElement>(null);
-  const pageRef = useRef<HTMLDivElement>(null);
   const logoRef = useRef<HTMLSpanElement>(null);
-  const userCookie = Cookies.get('TodoApp-User-Cookie');
+  const userCookie = getCookie(TODO_APP_COOKIE);
+  const root = useRef(null);
+  const scope = useRef<Scope>(null);
 
   const handleSubmit = useCallback(
-    async (e: h.JSX.TargetedEvent<HTMLFormElement, Event>) => {
+    async (e: TargetedEvent<HTMLFormElement, Event>) => {
       e.preventDefault();
       if (
         userName &&
@@ -95,27 +97,31 @@ const Login: FunctionalComponent<{ path: string }> = (props) => {
               }
             }
           );
-          Cookies.set('TodoApp-User-Cookie', userName, { expires: 7 });
-          const tl = anime.timeline({
-            duration: 1000,
-            targets: pageRef.current
+          setCookie(TODO_APP_COOKIE, userName, { expires: '2h' });
+
+          const tl = createTimeline({
+            defaults: {
+              duration: 1000
+            }
           });
 
-          tl.add({
+          tl.add(scope.current?.root as HTMLElement, {
             scale: 0.92
           })
             .add(
+              scope.current?.root as HTMLElement,
               {
                 borderWidth: 0,
-                easing: 'easeInOutExpo'
+                ease: 'inOutExpo'
               },
               '-=1000'
             )
             .add(
+              scope.current?.root as HTMLElement,
               {
                 opacity: 0,
-                easing: 'easeInOutExpo',
-                complete: () => {
+                ease: 'inOutExpo',
+                onComplete: () => {
                   route('/dashboard');
                 }
               },
@@ -136,44 +142,49 @@ const Login: FunctionalComponent<{ path: string }> = (props) => {
   // オペニング アニメーション
   useEffect(() => {
     document.getElementById('preact_root')?.removeAttribute('style');
-    if (!userCookie) {
-      const tl = anime.timeline({ duration: 500 });
 
-      tl.add({
-        targets: logoRef.current,
-        opacity: [0, 1],
-        translateY: [32, 0],
-        delay: 500
-      })
-        .add({
-          targets: formRef.current,
-          height: [0, anime.get(formRef.current, 'height')],
+    if (!userCookie) {
+      scope.current = createScope({ root }).add((self) => {
+        const tl = createTimeline({ defaults: { duration: 500 } });
+
+        tl.add('.logo', {
           opacity: [0, 1],
-          duration: 900
+          translateY: [32, 0],
+          delay: 500
         })
-        .add(
-          {
-            targets: pageRef.current,
-            borderWidth: 16,
-            easing: 'easeInOutExpo'
-          },
-          '-=600'
-        )
-        .add(
-          {
-            targets: [
-              document.getElementById('appTimerId'),
-              document.getElementById('introFooter')
-            ],
+          .add('#loginFormId', {
+            // height: [0, 168],
             opacity: [0, 1],
-            easing: 'easeInOutQuad'
-          },
-          '-=500'
-        );
+            translateY: {
+              to: [180, 0],
+              ease: 'inOutBack'
+            },
+            duration: 900
+          })
+          .add(
+            self.root,
+            {
+              borderWidth: 16,
+              ease: 'inOutExpo'
+            },
+            '-=600'
+          )
+          .add(
+            ['#appTimerId', '#introFooter'],
+            {
+              opacity: [0, 1],
+              ease: 'inOutQuad'
+            },
+            '-=500'
+          );
+      });
+
+      return;
     }
-    if (userCookie) {
-      route('/dashboard');
-    }
+
+    route('/dashboard');
+
+    return () => scope.current?.revert();
   }, [path, userCookie]);
 
   if (userCookie) {
@@ -183,14 +194,19 @@ const Login: FunctionalComponent<{ path: string }> = (props) => {
   return (
     <div
       className={`${style.loginWrap} app-page centered`}
-      ref={pageRef}
+      ref={root}
       id="loginPage"
     >
       <Timer fixed={true} className={style.appTimer} />
-      <span className={style.logo} ref={logoRef}>
+      <span className={`${style.logo} logo`} ref={logoRef}>
         <Logo title="Todo App" />
       </span>
-      <form className={style.loginForm} onSubmit={handleSubmit} ref={formRef}>
+      <form
+        className={style.loginForm}
+        id="loginFormId"
+        onSubmit={handleSubmit}
+        ref={formRef}
+      >
         <Container title="ログイン">
           <Input
             onInput={(v) => setUserName(v.currentTarget.value)}

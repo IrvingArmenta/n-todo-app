@@ -1,7 +1,7 @@
-import { AppDatabase } from './db';
-import { TodoItem } from './models/todoItem';
-import { TodoList } from './models/todoList';
-import { User } from './models/user';
+import type { AppDatabase } from './db';
+import type { TodoItem } from './models/todoItem';
+import type { TodoList } from './models/todoList';
+import type { User } from './models/user';
 
 export async function createUser(db: AppDatabase, user: User) {
   return await db.users.put(user);

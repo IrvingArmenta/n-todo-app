@@ -1,5 +1,5 @@
-import dayjs, { Dayjs } from 'dayjs';
-import { FunctionalComponent, h } from 'preact';
+import dayjs, { type Dayjs } from 'dayjs';
+import type { FunctionalComponent } from 'preact';
 import { useEffect } from 'preact/hooks';
 import useNewTimer from '../hooks/useTimer';
 

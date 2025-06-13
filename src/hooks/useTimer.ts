@@ -1,7 +1,6 @@
-import dayjs, { Dayjs } from 'dayjs';
+import dayjs, { type Dayjs } from 'dayjs';
+import localizedFormat from 'dayjs/plugin/localizedFormat';
 import { useEffect, useState } from 'preact/hooks';
-require('dayjs/locale/ja');
-const localizedFormat = require('dayjs/plugin/localizedFormat');
 dayjs.extend(localizedFormat);
 
 function useNewTimer(currentDate: Dayjs) {
@@ -15,7 +14,7 @@ function useNewTimer(currentDate: Dayjs) {
   });
 
   function tick() {
-    setDate(dayjs().locale('ja'));
+    setDate(dayjs());
   }
 
   return date;

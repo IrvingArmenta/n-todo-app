@@ -1,4 +1,4 @@
-import cuid from 'cuid';
+import { createId } from '@paralleldrive/cuid2';
 
 /**
  * Abstract entity model with `gid` property initialization
@@ -6,10 +6,11 @@ import cuid from 'cuid';
  */
 abstract class AbstractEntity {
   constructor(public gid?: string) {
-    gid ? (this.gid = gid) : (this.gid = cuid());
+    // biome-ignore lint/suspicious/noAssignInExpressions: <explanation>
+    gid ? (this.gid = gid) : (this.gid = createId());
   }
   equals(e1: AbstractEntity, e2: AbstractEntity) {
-    return e1.gid == e2.gid;
+    return e1.gid === e2.gid;
   }
 }
 

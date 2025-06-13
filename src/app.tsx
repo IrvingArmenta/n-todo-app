@@ -1,20 +1,21 @@
-import { FunctionalComponent, h } from 'preact';
-import { Router, Route, RouterOnChangeArgs, route } from 'preact-router';
+import type { FunctionalComponent } from 'preact';
+import { Route, Router, type RouterOnChangeArgs, route } from 'preact-router';
 
-import Error404 from './routes/error404';
-import Login from './routes/login';
-import Dashboard from './routes/dashboard';
-import Header from './components/header';
-import ListView from './routes/listView';
-import Cookies from 'js-cookie';
 import { useState } from 'preact/hooks';
+import { getCookie } from 'tiny-cookie';
+import Header from './components/header';
+import { TODO_APP_COOKIE } from './globals';
+import Dashboard from './routes/dashboard';
+import Error404 from './routes/error404';
+import ListView from './routes/listView';
+import Login from './routes/login';
 
 async function checkForCookie() {
-  const authCookie = Cookies.get('TodoApp-User-Cookie');
+  const authCookie = getCookie(TODO_APP_COOKIE);
   return !!authCookie;
 }
 
-const App: FunctionalComponent = () => {
+export const App: FunctionalComponent = () => {
   const [currentPath, setCurrentPath] = useState('/');
 
   const handleAuthRoute = async (e: RouterOnChangeArgs) => {
@@ -36,7 +37,7 @@ const App: FunctionalComponent = () => {
   };
 
   return (
-    <div id="preact_root">
+    <>
       <Header isLogin={currentPath === '/'} />
       <Router onChange={handleAuthRoute}>
         <Route path="/" component={Login} />
@@ -44,8 +45,6 @@ const App: FunctionalComponent = () => {
         <Route path="/dashboard/:listId" component={ListView} />
         <Route component={Error404} default={true} />
       </Router>
-    </div>
+    </>
   );
 };
-
-export default App;

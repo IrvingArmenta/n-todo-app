@@ -66,9 +66,9 @@
 .btn.isDisabled:hover::after {
   box-shadow: inset -4px -4px gray;
 }
-/** 
-* Variants
-*/
+/**
+ * Variants
+ */
 .primary,
 .secondary {
   color: #fff;

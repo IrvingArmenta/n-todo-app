@@ -1,9 +1,9 @@
-import { FunctionalComponent, h } from 'preact';
+import { animate } from 'animejs';
+import type { FunctionalComponent } from 'preact';
 import { route } from 'preact-router';
-import style from './style.css';
-import Button from '../../components/button';
 import { useRef } from 'preact/hooks';
-import anime from 'animejs';
+import Button from '../../components/button';
+import style from './style.module.css';
 
 const Error404: FunctionalComponent = () => {
   const errorPageRef = useRef<HTMLDivElement>(null);
@@ -18,13 +18,12 @@ const Error404: FunctionalComponent = () => {
       <Button
         variant="primary"
         onClick={() => {
-          anime({
-            targets: errorPageRef.current,
+          animate(errorPageRef.current as HTMLElement, {
             translateX: 32,
             opacity: 0,
             duration: 800,
-            easing: 'easeInOutExpo',
-            complete: () => {
+            ease: 'inOutExpo',
+            onComplete: () => {
               route('/');
             }
           });

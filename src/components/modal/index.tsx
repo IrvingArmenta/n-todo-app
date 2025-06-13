@@ -1,11 +1,12 @@
-import anime from 'animejs';
-import { Fragment, FunctionalComponent, h } from 'preact';
+import { createTimeline, utils } from 'animejs';
+import { Fragment, type FunctionalComponent, type h } from 'preact';
 import { createPortal } from 'preact/compat';
 import { useRef } from 'preact/hooks';
 import { Transition } from 'react-transition-group';
-import { TransitionProps } from 'react-transition-group/Transition';
+import type { TransitionProps } from 'react-transition-group/Transition';
 import Button from '../button';
-import style from './style.css';
+import style from './style.module.css';
+import clsx from '@utils';
 
 type ModalType = {
   open?: boolean;
@@ -43,10 +44,12 @@ const ModalBody: FunctionalComponent<ModalType> = ({ ...props }) => {
         unmountOnExit={true}
         onEntering={() => {
           const root = document.getElementById('preact_root');
-          anime.remove(modalWrapRef.current);
-          const modalTL = anime.timeline({
-            easing: 'easeInOutExpo',
-            begin: () => {
+          utils.remove(modalWrapRef.current as HTMLElement);
+          const modalTL = createTimeline({
+            defaults: {
+              ease: 'inOutExpo'
+            },
+            onBegin: () => {
               if (root) {
                 root.setAttribute('aria-hidden', 'true');
                 root.classList.add('preact_root--open-modal');
@@ -55,27 +58,29 @@ const ModalBody: FunctionalComponent<ModalType> = ({ ...props }) => {
                 onModalOpen(modalBodyRef.current);
               }
             },
-            complete: () => {
+            onComplete: () => {
               const focusable =
                 modalBodyRef.current?.querySelectorAll<HTMLElement>(
                   'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
                 );
 
               if (focusable) {
-                focusable[0].focus();
+                requestAnimationFrame(() => {
+                  focusable[0].focus();
+                });
               }
             }
           });
+
           modalTL
-            .add({
-              targets: modalWrapRef.current,
+            .add('.backdrop', {
               opacity: [0, 1],
               duration: timeout / 2
             })
             .add(
+              modalWrapRef.current as HTMLElement,
               {
-                targets: modalBodyRef.current,
-                scale: [0.8, 1],
+                scale: [0.9, 1],
                 opacity: [0, 1],
                 duration: timeout / 2
               },
@@ -83,11 +88,13 @@ const ModalBody: FunctionalComponent<ModalType> = ({ ...props }) => {
             );
         }}
         onExiting={() => {
-          anime.remove(modalWrapRef.current);
+          utils.remove(modalWrapRef.current as HTMLElement);
 
-          const modalTLExit = anime.timeline({
-            easing: 'easeInOutExpo',
-            complete: () => {
+          const modalTLExit = createTimeline({
+            defaults: {
+              ease: 'inOutExpo'
+            },
+            onComplete: () => {
               const root = document.getElementById('preact_root');
               if (root) {
                 root.removeAttribute('aria-hidden');
@@ -98,16 +105,16 @@ const ModalBody: FunctionalComponent<ModalType> = ({ ...props }) => {
               }
             }
           });
+
           modalTLExit
-            .add({
-              targets: modalBodyRef.current,
+            .add(modalBodyRef.current as HTMLElement, {
               scale: 0.8,
-              opacity: 0,
+              opacity: [1, 0],
               duration: timeout / 2
             })
             .add(
+              '.backdrop',
               {
-                targets: modalWrapRef.current,
                 opacity: [1, 0],
                 duration: timeout / 2
               },
@@ -115,13 +122,15 @@ const ModalBody: FunctionalComponent<ModalType> = ({ ...props }) => {
             );
         }}
       >
-        <div ref={modalWrapRef} className={`${style.modalStyle} app-modal`}>
-          <span role="img" className={style.overlay} />
+        <div ref={modalWrapRef} className={clsx(style.modalStyle, 'app-modal')}>
+          <span
+            aria-hidden={true}
+            className={clsx(style.overlay, 'backdrop')}
+          />
           <form
             style={{ '--color': '#fff' }}
             class="pixel-border"
             onSubmit={(e) => e.preventDefault()}
-            role="dialog"
             ref={modalBodyRef}
           >
             {children}

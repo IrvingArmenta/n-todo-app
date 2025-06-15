@@ -1,33 +1,29 @@
+import { clsx } from '@utils';
 import { type Scope, createScope, createTimeline } from 'animejs';
+import dayjs from 'dayjs';
 import type { FunctionalComponent } from 'preact';
+import { route } from 'preact-router';
+import type { TargetedEvent } from 'preact/compat';
 import { useCallback, useEffect, useRef, useState } from 'preact/hooks';
 import { getCookie, setCookie } from 'tiny-cookie';
 import Logo from '../../assets/img/todo-app-logo.svg?react';
 import style from './style.module.css';
 
-import dayjs from 'dayjs';
-import { route } from 'preact-router';
-import type { TargetedEvent } from 'preact/compat';
-import { db } from '../../api/db';
-import {
-  createTodoItemBulk,
-  createTodoList,
-  createUser
-} from '../../api/helpers';
-import { TodoItem } from '../../api/models/todoItem';
-import { TodoList } from '../../api/models/todoList';
-import { User } from '../../api/models/user';
-import Button from '../../components/button';
-// components
-import Container from '../../components/container';
-import Input from '../../components/input';
-import Timer from '../../components/timer';
-import { TODO_APP_COOKIE } from '../../globals';
+// api
+import { db } from '@api/db';
+import { createTodoItemBulk, createTodoList, createUser } from '@api/helpers';
+import { TodoItem } from '@api/models/todoItem';
+import { TodoList } from '@api/models/todoList';
+import { User } from '@api/models/user';
 
-const Login: FunctionalComponent<{ path: string }> = (props) => {
+// components
+import { Button, Container, Input, Timer } from '@components';
+
+import { APP_ROOT, TODO_APP_COOKIE } from '../../globals';
+
+const Login: FunctionalComponent = () => {
   const [userName, setUserName] = useState<string | undefined>(undefined);
   const [inputError, setInputError] = useState('');
-  const { path } = props;
   const formRef = useRef<HTMLFormElement>(null);
   const logoRef = useRef<HTMLSpanElement>(null);
   const userCookie = getCookie(TODO_APP_COOKIE);
@@ -38,8 +34,7 @@ const Login: FunctionalComponent<{ path: string }> = (props) => {
     async (e: TargetedEvent<HTMLFormElement, Event>) => {
       e.preventDefault();
       if (
-        userName &&
-        userName.replace(/\s/g, '').length &&
+        userName?.replace(/\s/g, '').length &&
         !userName.trim().includes(' ')
       ) {
         setInputError('');
@@ -141,7 +136,7 @@ const Login: FunctionalComponent<{ path: string }> = (props) => {
 
   // オペニング アニメーション
   useEffect(() => {
-    document.getElementById('preact_root')?.removeAttribute('style');
+    document.getElementById(APP_ROOT)?.removeAttribute('style');
 
     if (!userCookie) {
       scope.current = createScope({ root }).add((self) => {
@@ -185,7 +180,7 @@ const Login: FunctionalComponent<{ path: string }> = (props) => {
     route('/dashboard');
 
     return () => scope.current?.revert();
-  }, [path, userCookie]);
+  }, [userCookie]);
 
   if (userCookie) {
     return null;
@@ -193,7 +188,7 @@ const Login: FunctionalComponent<{ path: string }> = (props) => {
 
   return (
     <div
-      className={`${style.loginWrap} app-page centered`}
+      className={clsx(style.loginWrap, 'app-page', 'centered')}
       ref={root}
       id="loginPage"
     >
@@ -230,7 +225,7 @@ const Login: FunctionalComponent<{ path: string }> = (props) => {
           rel="noopen noreferrer"
         >
           <span>by イルビン</span>
-          <i className="icon github" title="IrvingArmenta" role="img" />
+          <i className="icon github" title="IrvingArmenta" />
         </a>
       </footer>
     </div>

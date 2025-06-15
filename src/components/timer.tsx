@@ -1,4 +1,5 @@
-import dayjs, { type Dayjs } from 'dayjs';
+import { clsx } from '@utils';
+import type { Dayjs } from 'dayjs';
 import type { FunctionalComponent } from 'preact';
 import { useEffect } from 'preact/hooks';
 import useNewTimer from '../hooks/useTimer';
@@ -11,7 +12,7 @@ type TimerType = {
 
 const Timer: FunctionalComponent<TimerType> = (props) => {
   const { onTimeTick, fixed, className } = props;
-  const timer = useNewTimer(dayjs().locale('ja'));
+  const timer = useNewTimer();
 
   useEffect(() => {
     if (onTimeTick) {
@@ -21,7 +22,7 @@ const Timer: FunctionalComponent<TimerType> = (props) => {
 
   return (
     <time
-      className={`appTimer ${fixed ? 'fixed' : ''} ${className || ''}`}
+      className={clsx('appTimer', fixed && 'fixed', className)}
       id="appTimerId"
       dateTime={timer.format()}
     >

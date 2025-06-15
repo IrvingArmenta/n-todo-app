@@ -1,7 +1,7 @@
+import { clsx } from '@utils';
 import type { FunctionalComponent } from 'preact';
 import type { HTMLAttributes } from 'preact/compat';
 import style from './style.module.css';
-import clsx from '@utils';
 
 type ButtonType = {
   variant?: 'primary' | 'secondary';
@@ -14,12 +14,12 @@ const Button: FunctionalComponent<ButtonType> = ({
   type = 'button',
   ...props
 }) => {
-  const { disabled, variant = 'primary', children, className, ...rest } = props;
+  const { disabled, variant, children, className, ...rest } = props;
   return (
     <button
       className={clsx(
         style.btn,
-        style[variant],
+        variant && style[variant],
         disabled && style.isDisabled,
         className
       )}

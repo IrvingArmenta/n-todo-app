@@ -1,4 +1,6 @@
 :root {
+  --font-family: "pixelmplus10", system-ui, -apple-system, BlinkMacSystemFont,
+    monospace;
   /** primary color */
   --p-color: 355, 100%;
   --p-light: 45%;
@@ -31,7 +33,7 @@ html {
   overflow: hidden;
 }
 
-html[data-theme='dark'] {
+html[data-theme="dark"] {
   --primary-color: blue;
 }
 
@@ -42,22 +44,8 @@ body {
   margin: 0;
   font-weight: 400;
   color: #333;
-  font-family:
-    'ja-font',
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    monospace;
+  font-family: var(--font-family);
   letter-spacing: 0.2px;
-}
-
-@font-face {
-  font-family: 'ja-font';
-  src:
-    url('../assets/fonts/pixelmplus10-regular.woff2') format('woff2'),
-    url('../assets/fonts/pixelmplus10-regular.woff') format('woff');
-  font-weight: normal;
-  font-style: normal;
 }
 
 #preact_root {
@@ -69,7 +57,7 @@ body {
   margin: 0 auto;
   overflow: hidden;
   position: relative;
-  /* isolation: isolate; */
+  isolation: isolate;
 }
 
 .appTimer {
@@ -131,7 +119,7 @@ ul {
   top: -1px;
   left: -1px;
   display: block;
-  content: '';
+  content: "";
   background: 0 0;
 }
 
@@ -398,7 +386,7 @@ ul {
   position: absolute;
   top: -2px;
   left: -20px;
-  content: '';
+  content: "";
   width: 2px;
   height: 2px;
   color: #212529;

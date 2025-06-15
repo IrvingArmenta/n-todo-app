@@ -1,5 +1,6 @@
 import preact from '@preact/preset-vite';
 import tsconfigPaths from 'vite-tsconfig-paths';
+import Unfonts from 'unplugin-fonts/vite';
 import { defineConfig, normalizePath } from 'vite';
 import svgr from 'vite-plugin-svgr';
 import path from 'node:path';
@@ -10,8 +11,10 @@ import { VitePWA } from 'vite-plugin-pwa';
 const staticFolderCopyOptions = {
   targets: [
     {
-      src: normalizePath(path.resolve(import.meta.dirname, './public/icons')),
-      dest: '.'
+      src: normalizePath(
+        path.resolve(import.meta.dirname, './src/assets/icons')
+      ),
+      dest: './assets'
     }
   ]
 };
@@ -26,12 +29,21 @@ export default defineConfig(({ mode }) => {
       svgr(),
       tsconfigPaths(),
       isProductionMode && viteStaticCopy(staticFolderCopyOptions),
+      Unfonts({
+        custom: {
+          families: [
+            {
+              name: 'pixelmplus10',
+              local: 'sans-serif',
+              src: './src/assets/fonts/*'
+            }
+          ],
+          preload: true
+        }
+      }),
       VitePWA({
         registerType: 'autoUpdate',
         injectRegister: 'auto',
-        devOptions: {
-          enabled: true
-        },
         manifest: {
           name: 'N-TodoApp+',
           short_name: 'N-TodoApp+',
@@ -42,38 +54,38 @@ export default defineConfig(({ mode }) => {
           theme_color: '#fff',
           icons: [
             {
-              src: '/icons/android-chrome-192x192.png',
+              src: '/assets/icons/android-chrome-192x192.png',
               type: 'image/png',
               sizes: '192x192',
               purpose: 'any maskable'
             },
             {
-              src: '/icons/android-chrome-512x512.png',
+              src: '/assets/icons/android-chrome-512x512.png',
               type: 'image/png',
               sizes: '512x512'
             },
             {
-              src: '/icons/android-36x36.png',
+              src: '/assets/icons/android-36x36.png',
               type: 'image/png',
               sizes: '36x36'
             },
             {
-              src: '/icons/android-48x48.png',
+              src: '/assets/icons/android-48x48.png',
               type: 'image/png',
               sizes: '48x48'
             },
             {
-              src: '/icons/android-72x72.png',
+              src: '/assets/icons/android-72x72.png',
               type: 'image/png',
               sizes: '72x72'
             },
             {
-              src: '/icons/android-96x96.png',
+              src: '/assets/icons/android-96x96.png',
               type: 'image/png',
               sizes: '96x96'
             },
             {
-              src: '/icons/android-144x144.png',
+              src: '/assets/icons/android-144x144.png',
               type: 'image/png',
               sizes: '144x144'
             }
@@ -90,6 +102,9 @@ export default defineConfig(({ mode }) => {
             const fileName = names?.[0] ?? '';
             if (/\.css$/.test(fileName)) {
               return 'assets/css/[name]-[hash][extname]';
+            }
+            if (/\.woff2?$/.test(fileName)) {
+              return 'assets/fonts/[name]-[hash][extname]';
             }
             return 'assets/[name]-[hash][extname]';
           },

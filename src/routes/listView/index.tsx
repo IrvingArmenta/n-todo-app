@@ -1,40 +1,32 @@
+import { db } from '@api/db';
+import { TodoItem } from '@api/models/todoItem';
+import { AddButton, Button, Input, Modal, Textarea } from '@components';
+import { clsx, itsNotEmpty, sleep } from '@utils';
 import { animate, utils } from 'animejs';
-import dayjs from 'dayjs';
-/* eslint-disable jsx-a11y/click-events-have-key-events */
 import type { FunctionalComponent, h } from 'preact';
 import { route } from 'preact-router';
 import { useCallback, useEffect, useRef, useState } from 'preact/hooks';
 import FlipMove from 'react-flip-move';
 import { Transition } from 'react-transition-group';
 import { getCookie } from 'tiny-cookie';
-import { db } from '../../api/db';
-import clsx, { itsNotEmpty, sleep } from '../../utils';
+
 import style from './style.module.css';
 
 // hooks
 import { useLiveQuery } from 'dexie-react-hooks';
 import useClickAway from '../../hooks/useClickAway';
 
-import { TodoItem } from '../../api/models/todoItem';
+import { dateFormat } from 'src/dateFormat';
 import DeleteIcon from '../../assets/img/delete-icon.svg?react';
 import EditIcon from '../../assets/img/edit-icon.svg?react';
-import AddButton from '../../components/addButton';
-import Button from '../../components/button';
 // components
-import Input from '../../components/input';
-import Modal from '../../components/modal';
-import TextArea from '../../components/textarea';
 import { TODO_APP_COOKIE } from '../../globals';
 
 type ListViewType = {
   listId: string;
 };
 
-const filtersArr = ['hideOnGoing', 'hideDone', 'showAll'] as (
-  | 'hideOnGoing'
-  | 'hideDone'
-  | 'showAll'
-)[];
+const filtersArr = ['hideOnGoing', 'hideDone', 'showAll'] as const;
 
 const ListView: FunctionalComponent<ListViewType> = (props) => {
   const { listId } = props;
@@ -52,7 +44,7 @@ const ListView: FunctionalComponent<ListViewType> = (props) => {
   const titleInputRef = useRef<HTMLInputElement>(null);
   const [formMode, setForMode] = useState<'CREATE' | 'EDIT'>('CREATE');
   const [filters, setFilters] = useState<{
-    type: 'hideOnGoing' | 'hideDone' | 'showAll';
+    type: (typeof filtersArr)[number];
   }>(() => ({ type: 'showAll' }));
   const [order, setOrder] = useState(false);
 
@@ -64,13 +56,13 @@ const ListView: FunctionalComponent<ListViewType> = (props) => {
     }
   }, [activeTodo]);
 
-  // オエニングアニメーション
+  //  イントロアニメーション
   useEffect(() => {
     animate(listViewPageRef.current as HTMLElement, {
       opacity: [0, 1],
       translateX: [32, 0],
       duration: 700,
-      easing: 'easeInOutExpo'
+      ease: 'inOutExpo'
     });
   }, []);
 
@@ -93,21 +85,7 @@ const ListView: FunctionalComponent<ListViewType> = (props) => {
 
   // indexedDB dexie fetch
   const listTodos = useLiveQuery(async () => {
-    if (order) {
-      return await db.todoItems
-        .where('todoListId')
-        .equals(listId)
-        .and((item) => {
-          if (filters.type === 'showAll') {
-            return true;
-          }
-          return filters.type === 'hideDone'
-            ? item.done === false
-            : item.done === true;
-        })
-        .sortBy('creationDate');
-    }
-    return await db.todoItems
+    const rootQuery = db.todoItems
       .where('todoListId')
       .equals(listId)
       .and((item) => {
@@ -117,9 +95,13 @@ const ListView: FunctionalComponent<ListViewType> = (props) => {
         return filters.type === 'hideDone'
           ? item.done === false
           : item.done === true;
-      })
-      .reverse()
-      .sortBy('creationDate');
+      });
+
+    if (order) {
+      return rootQuery.sortBy('creationDate');
+    }
+
+    return rootQuery.reverse().sortBy('creationDate');
   }, [listId, filters, order, listUpdate.current]);
 
   const handleCreateTodo = useCallback(
@@ -265,20 +247,22 @@ const ListView: FunctionalComponent<ListViewType> = (props) => {
         }}
         onCancelButtonClick={() => setToggleModal(false)}
       >
-        <span style={{ color: '#fff' }}>
+        <h4 style={{ color: '#fff' }}>
           {formMode === 'CREATE' ? '作成' : '編集'}
-        </span>
+        </h4>
         <Input
           label="タイトル"
           setsumei="todoタイトル"
+          id="todoTitle"
           value={todoTitle}
           onInput={(e) => setTodoTitle(e.currentTarget.value)}
           ref={titleInputRef}
           maxLength={20}
           required={true}
         />
-        <TextArea
+        <Textarea
           maxLength={60}
+          id="shortDescTextarea"
           label="概要"
           value={shortDesc}
           onInput={(e) => setShortDesc(e.currentTarget.value)}
@@ -392,8 +376,10 @@ const ListView: FunctionalComponent<ListViewType> = (props) => {
                     />
                     <header>
                       <h3 id="todoTitle">{todo.title}</h3>
-                      <time dateTime={dayjs(todo.creationDate).toString()}>
-                        {dayjs(todo.creationDate).locale('ja').format('LL LTS')}
+                      <time
+                        dateTime={dateFormat(todo.creationDate).toISOString()}
+                      >
+                        {dateFormat(todo.creationDate).format('LL LTS')}
                       </time>
                     </header>
                     <div>
@@ -476,9 +462,10 @@ const ListView: FunctionalComponent<ListViewType> = (props) => {
                 <button
                   key={type}
                   type="button"
-                  className={`${
-                    type === filters.type ? style.active : ''
-                  } pixel-border`}
+                  className={clsx(
+                    type === filters.type && style.active,
+                    'pixel-border'
+                  )}
                   onClick={() => setFilters({ type })}
                 >
                   {type === 'hideOnGoing' && '完了'}

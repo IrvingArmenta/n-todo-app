@@ -28,7 +28,7 @@ export const itsNotEmpty = (str: string) => {
  * const className = clsx('btn', isActive && 'btn-active', undefined, false, 'btn-primary');
  * // className will be 'btn btn-active btn-primary' if isActive is true
  */
-function clsx(...classNames: (string | boolean | undefined | null)[]) {
+export function clsx(...classNames: (string | boolean | undefined | null)[]) {
   return classNames
     .map((cls) => (cls === '' ? undefined : cls))
     .filter(
@@ -36,5 +36,3 @@ function clsx(...classNames: (string | boolean | undefined | null)[]) {
     )
     .join(' ');
 }
-
-export default clsx;

@@ -1,21 +1,22 @@
+import { clsx } from '@utils';
 import type { FunctionalComponent } from 'preact';
+import type { HTMLAttributes } from 'preact/compat';
 import PlusIcon from '../../assets/img/plus-sign.svg?react';
 import style from './style.module.css';
-import clsx from '@utils';
-import type { HTMLAttributes } from 'preact/compat';
 
-const AddButton: FunctionalComponent<
-  {
-    closeMode?: boolean;
-    text?: string;
-    absolute?: boolean;
-    disabled?: boolean;
-  } & HTMLAttributes<HTMLButtonElement>
-> = ({ text = '追加する', ...props }) => {
-  const { closeMode, ...rest } = props;
+type AddButtonProps = {
+  closeMode?: boolean;
+  text?: string;
+  absolute?: boolean;
+  disabled?: boolean;
+} & HTMLAttributes<HTMLButtonElement>;
+
+const AddButton: FunctionalComponent<AddButtonProps> = (props) => {
+  const { closeMode, text = '追加する', ...rest } = props;
   return (
     <button
       {...rest}
+      type="button"
       className={clsx(
         style.addButton,
         style.size,

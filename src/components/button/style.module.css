@@ -29,7 +29,7 @@
   right: -4px;
   bottom: -4px;
   left: -4px;
-  content: '';
+  content: "";
   box-shadow: inset -4px -4px var(--dark, #adafbc);
 }
 

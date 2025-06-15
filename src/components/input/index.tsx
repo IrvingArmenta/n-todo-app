@@ -1,3 +1,4 @@
+import { clsx } from '@utils';
 import { animate, utils } from 'animejs';
 import { Fragment } from 'preact';
 import {
@@ -9,43 +10,50 @@ import {
 import { Transition } from 'react-transition-group';
 import styleCss from './style.module.css';
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-const Input = forwardRef<
-  HTMLInputElement,
-  {
-    label?: string;
-    setsumei?: string | ReactNode;
-    error?: string;
-    value?: string;
-    maxLength?: number;
-    required?: boolean;
-  } & HTMLAttributes<HTMLInputElement>
->((props, ref) => {
-  const { className, label, setsumei, error, style, ...rest } = props;
+type InputProps = {
+  label?: string;
+  setsumei?: string | ReactNode;
+  error?: string;
+  value?: string;
+  maxLength?: number;
+  required?: boolean;
+  id: string;
+} & HTMLAttributes<HTMLInputElement>;
+
+const Input = forwardRef<HTMLInputElement, InputProps>((props, ref) => {
+  const {
+    className,
+    label,
+    setsumei,
+    error,
+    style,
+    value,
+    maxLength,
+    ...rest
+  } = props;
   const errorRef = useRef<HTMLDivElement>(null);
   const valueCount =
-    typeof props.value === 'string' ? props.value.replace(/\s/g, '').length : 0;
+    typeof value === 'string' ? value.replace(/\s/g, '').length : 0;
 
   return (
     <div className={styleCss.inputWrap} style={style}>
       <span className={styleCss.inputHeader}>
         {label && <label htmlFor={rest.id}>{label}</label>}
         <span style={{ textAlign: 'right' }}>
-          {(setsumei || props.maxLength) && (
+          {(setsumei || maxLength) && (
             <Fragment>
               {setsumei && (
                 <span style={{ display: 'block', marginBottom: 4 }}>
                   {setsumei}
                 </span>
               )}
-              {props.maxLength && (
+              {maxLength && (
                 <span
                   style={{
-                    color:
-                      props.maxLength - valueCount === 0 ? 'red' : 'inherit'
+                    color: maxLength - valueCount === 0 ? 'red' : 'inherit'
                   }}
                 >
-                  {props.maxLength - valueCount}
+                  {maxLength - valueCount}
                   文字まで
                 </span>
               )}
@@ -56,7 +64,9 @@ const Input = forwardRef<
       <input
         ref={ref}
         {...rest}
-        className={`${styleCss.input} ${className || ''}`}
+        value={value}
+        maxLength={maxLength}
+        className={clsx(styleCss.input, className as string)}
       />
       <Transition
         in={Boolean(error)}
@@ -64,22 +74,21 @@ const Input = forwardRef<
         unmountOnExit={true}
         timeout={1000}
         nodeRef={errorRef}
-        onEntering={(node) => {
-          console.log(node);
+        onEntering={() => {
           animate('.iconArrow', {
             height: [0, utils.get('.iconArrow', 'height')],
             opacity: [0, 1],
             marginTop: [0, 8]
           });
         }}
-        onExit={() => {
+        onExiting={() => {
           animate('.iconArrow', {
             height: 0,
             opacity: 0
           });
         }}
       >
-        <div className={`${styleCss.error} iconArrow`} ref={errorRef}>
+        <div className={clsx(styleCss.error, 'iconArrow')} ref={errorRef}>
           {error}
         </div>
       </Transition>

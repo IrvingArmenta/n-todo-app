@@ -1,10 +1,8 @@
-import dayjs, { type Dayjs } from 'dayjs';
-import localizedFormat from 'dayjs/plugin/localizedFormat';
 import { useEffect, useState } from 'preact/hooks';
-dayjs.extend(localizedFormat);
+import { dateFormat } from 'src/dateFormat';
 
-function useNewTimer(currentDate: Dayjs) {
-  const [date, setDate] = useState(currentDate);
+function useNewTimer() {
+  const [date, setDate] = useState(dateFormat());
 
   useEffect(() => {
     const timerID = setInterval(() => tick(), 1000);
@@ -14,7 +12,7 @@ function useNewTimer(currentDate: Dayjs) {
   });
 
   function tick() {
-    setDate(dayjs());
+    setDate(dateFormat());
   }
 
   return date;

@@ -32,6 +32,7 @@
   flex: 1;
   margin-bottom: 16px;
   overflow: auto;
+  overflow-x: hidden;
 }
 
 .listViewWrapper header {
@@ -53,11 +54,8 @@
   flex: 1;
   position: relative;
   user-select: none;
-  transition:
-    transform 100ms ease-in-out,
-    opacity 150ms ease-in-out,
-    box-shadow 150ms ease-in-out,
-    background-color 150ms ease-in-out;
+  transition: transform 100ms ease-in-out, opacity 150ms ease-in-out, box-shadow
+    150ms ease-in-out, background-color 150ms ease-in-out;
 }
 
 .todoItem section:active {
@@ -153,7 +151,7 @@
   position: absolute;
   top: -3px;
   left: -28px;
-  content: '';
+  content: "";
   transition: box-shadow 150ms ease-in-out;
 }
 
@@ -314,4 +312,6 @@
   position: absolute;
   inset: 0;
   z-index: 1;
+  background-color: transparent;
+  border: 0;
 }

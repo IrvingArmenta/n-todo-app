@@ -1,7 +1,7 @@
 import { db } from '@api/db';
 import { TodoItem } from '@api/models/todoItem';
-import { AddButton, Button, Input, Modal, Textarea } from '@components';
-import { clsx, itsNotEmpty } from '@utils';
+import { Button, Input, Modal, Textarea } from '@components';
+import { itsNotEmpty } from '@utils';
 import { animate } from 'animejs';
 import type { FunctionalComponent } from 'preact';
 import { route } from 'preact-router';

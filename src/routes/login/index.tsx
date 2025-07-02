@@ -1,6 +1,5 @@
 import { clsx } from '@utils';
 import { type Scope, createScope, createTimeline } from 'animejs';
-import dayjs from 'dayjs';
 import type { FunctionalComponent } from 'preact';
 import { route } from 'preact-router';
 import type { TargetedEvent } from 'preact/compat';
@@ -9,17 +8,11 @@ import { getCookie, setCookie } from 'tiny-cookie';
 import Logo from '../../assets/img/todo-app-logo.svg?react';
 import style from './style.module.css';
 
-// api
-import { db } from '@api/db';
-import { createTodoItemBulk, createTodoList, createUser } from '@api/helpers';
-import { TodoItem } from '@api/models/todoItem';
-import { TodoList } from '@api/models/todoList';
-import { User } from '@api/models/user';
-
 // components
 import { Button, Container, Input, Timer } from '@components';
 
-import { APP_ROOT, TODO_APP_COOKIE } from '../../globals';
+import { APP_ROOT, TODO_APP_COOKIE } from '@globals';
+import { setInitialDBdata } from './login-utils';
 
 const Login: FunctionalComponent = () => {
   const [userName, setUserName] = useState<string | undefined>(undefined);
@@ -40,58 +33,7 @@ const Login: FunctionalComponent = () => {
         setInputError('');
         const userN = userName.trim();
         try {
-          await db.transaction(
-            'rw',
-            db.users,
-            db.todoLists,
-            db.todoItems,
-            async () => {
-              const userExists = await db.users
-                .where('name')
-                .equals(userN)
-                .first();
-
-              if (!userExists) {
-                const newUser = new User(userN);
-
-                const newUserID = await createUser(db, newUser);
-
-                const sampleList = new TodoList(
-                  newUserID,
-                  '私のサンプルリスト',
-                  new Date()
-                );
-
-                const sampleListId = await createTodoList(db, sampleList);
-
-                const sampleTodoItems = [
-                  new TodoItem(
-                    sampleListId,
-                    'ランチ',
-                    dayjs().add(2, 'hour').toDate(),
-                    false,
-                    '原宿で友達とランチする'
-                  ),
-                  new TodoItem(
-                    sampleListId,
-                    '目黒ディナー',
-                    new Date(),
-                    false,
-                    '彼女とデート！'
-                  ),
-                  new TodoItem(
-                    sampleListId,
-                    '英語のテスト',
-                    new Date(),
-                    true,
-                    '英語のテストの時間！'
-                  )
-                ];
-
-                await createTodoItemBulk(db, sampleTodoItems);
-              }
-            }
-          );
+          await setInitialDBdata(userN);
           setCookie(TODO_APP_COOKIE, userName, { expires: '2h' });
 
           const tl = createTimeline({

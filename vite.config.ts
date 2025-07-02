@@ -1,12 +1,12 @@
+import path from 'node:path';
 import preact from '@preact/preset-vite';
-import tsconfigPaths from 'vite-tsconfig-paths';
 import Unfonts from 'unplugin-fonts/vite';
 import { defineConfig, normalizePath } from 'vite';
 import svgr from 'vite-plugin-svgr';
-import path from 'node:path';
+import tsconfigPaths from 'vite-tsconfig-paths';
 
-import { viteStaticCopy } from 'vite-plugin-static-copy';
 import { VitePWA } from 'vite-plugin-pwa';
+import { viteStaticCopy } from 'vite-plugin-static-copy';
 
 const staticFolderCopyOptions = {
   targets: [
@@ -24,6 +24,9 @@ export default defineConfig(({ mode }) => {
   const isProductionMode = mode === 'production';
 
   return {
+    define: {
+      'import.meta.vitest': 'undefined'
+    },
     plugins: [
       preact(),
       svgr(),
@@ -121,6 +124,11 @@ export default defineConfig(({ mode }) => {
           }
         }
       }
+    },
+    test: {
+      globals: true,
+      setupFiles: ['./__test__/setup.ts'],
+      environment: 'happy-dom'
     }
   };
 });

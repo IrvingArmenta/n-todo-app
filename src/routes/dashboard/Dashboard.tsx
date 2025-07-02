@@ -1,3 +1,5 @@
+import { AddButton, Button, Container, Input, Modal } from '@components';
+import { itsNotEmpty, sleep } from '@utils';
 import { animate } from 'animejs';
 import { useLiveQuery } from 'dexie-react-hooks';
 import type { FunctionalComponent } from 'preact';
@@ -5,19 +7,15 @@ import { route } from 'preact-router';
 import { useCallback, useEffect, useRef, useState } from 'preact/hooks';
 import FlipMove from 'react-flip-move';
 import { getCookie } from 'tiny-cookie';
-import { db } from '../../api/db';
-import { createTodoList } from '../../api/helpers';
-import { TodoList } from '../../api/models/todoList';
 import DeleteIcon from '../../assets/img/delete-icon.svg?react';
-import AddButton from '../../components/addButton';
-import Button from '../../components/button';
 
 // components
-import Container from '../../components/container';
-import Input from '../../components/input';
-import Modal from '../../components/modal';
-import { TODO_APP_COOKIE } from '../../globals';
-import { itsNotEmpty, sleep } from '../../utils';
+import { TODO_APP_COOKIE } from '@globals';
+
+// api
+import { db } from '@api/db';
+import { createTodoList } from '@api/helpers';
+import { TodoList } from '@api/models/todoList';
 
 import style from './style.module.css';
 

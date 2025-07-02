@@ -6,7 +6,7 @@ import { useRef } from 'preact/hooks';
 import { Transition } from 'react-transition-group';
 import type { TransitionProps } from 'react-transition-group/Transition';
 import { APP_ROOT } from 'src/globals';
-import Button from '../button';
+import Button from '../Button/Button';
 import style from './style.module.css';
 
 type ModalType = {

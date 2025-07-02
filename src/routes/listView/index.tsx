@@ -1,13 +1,11 @@
 import { db } from '@api/db';
 import { TodoItem } from '@api/models/todoItem';
 import { AddButton, Button, Input, Modal, Textarea } from '@components';
-import { clsx, itsNotEmpty, sleep } from '@utils';
-import { animate, utils } from 'animejs';
-import type { FunctionalComponent, h } from 'preact';
+import { clsx, itsNotEmpty } from '@utils';
+import { animate } from 'animejs';
+import type { FunctionalComponent } from 'preact';
 import { route } from 'preact-router';
 import { useCallback, useEffect, useRef, useState } from 'preact/hooks';
-import FlipMove from 'react-flip-move';
-import { Transition } from 'react-transition-group';
 import { getCookie } from 'tiny-cookie';
 
 import style from './style.module.css';
@@ -16,17 +14,20 @@ import style from './style.module.css';
 import { useLiveQuery } from 'dexie-react-hooks';
 import useClickAway from '../../hooks/useClickAway';
 
-import { dateFormat } from 'src/dateFormat';
 import DeleteIcon from '../../assets/img/delete-icon.svg?react';
-import EditIcon from '../../assets/img/edit-icon.svg?react';
 // components
 import { TODO_APP_COOKIE } from '../../globals';
+import ListOfTodos from './ListOfTodos';
+import ListViewFooter from './ListViewFooter';
 
 type ListViewType = {
   listId: string;
 };
 
 const filtersArr = ['hideOnGoing', 'hideDone', 'showAll'] as const;
+export type TODOS_FILTERS = {
+  type: (typeof filtersArr)[number];
+};
 
 const ListView: FunctionalComponent<ListViewType> = (props) => {
   const { listId } = props;
@@ -42,10 +43,10 @@ const ListView: FunctionalComponent<ListViewType> = (props) => {
   const [todoTitle, setTodoTitle] = useState('');
   const [shortDesc, setShortDesc] = useState('');
   const titleInputRef = useRef<HTMLInputElement>(null);
-  const [formMode, setForMode] = useState<'CREATE' | 'EDIT'>('CREATE');
-  const [filters, setFilters] = useState<{
-    type: (typeof filtersArr)[number];
-  }>(() => ({ type: 'showAll' }));
+  const [formMode, setFormMode] = useState<'CREATE' | 'EDIT'>('CREATE');
+  const [currentFilter, setCurrentFilter] = useState<TODOS_FILTERS>(() => ({
+    type: 'showAll'
+  }));
   const [order, setOrder] = useState(false);
 
   // Active Edit Ref update
@@ -89,10 +90,10 @@ const ListView: FunctionalComponent<ListViewType> = (props) => {
       .where('todoListId')
       .equals(listId)
       .and((item) => {
-        if (filters.type === 'showAll') {
+        if (currentFilter.type === 'showAll') {
           return true;
         }
-        return filters.type === 'hideDone'
+        return currentFilter.type === 'hideDone'
           ? item.done === false
           : item.done === true;
       });
@@ -102,7 +103,7 @@ const ListView: FunctionalComponent<ListViewType> = (props) => {
     }
 
     return rootQuery.reverse().sortBy('creationDate');
-  }, [listId, filters, order, listUpdate.current]);
+  }, [listId, currentFilter, order, listUpdate.current]);
 
   const handleCreateTodo = useCallback(
     async (todoTitle: string, todoDescription?: string) => {
@@ -125,29 +126,6 @@ const ListView: FunctionalComponent<ListViewType> = (props) => {
     },
     [listId]
   );
-
-  const handleInputCheck = useCallback(
-    async (e: h.JSX.TargetedEvent<HTMLInputElement, Event>, todoId: string) => {
-      try {
-        await db.transaction('rw', db.todoItems, async () => {
-          await db.todoItems.update(todoId, { done: e.currentTarget.checked });
-        });
-      } catch (e) {
-        throw new Error('データベースエラー');
-      }
-    },
-    []
-  );
-
-  const handleTodoDelete = useCallback(async (todoId: string) => {
-    try {
-      await db.transaction('rw', db.todoItems, async () => {
-        await db.todoItems.delete(todoId);
-      });
-    } catch (e) {
-      throw new Error('データベースエラー');
-    }
-  }, []);
 
   const handleTodoEdit = useCallback(
     async (
@@ -176,6 +154,7 @@ const ListView: FunctionalComponent<ListViewType> = (props) => {
             });
             setToggleModal(false);
             listUpdate.current++;
+
             return;
           });
         }
@@ -204,6 +183,13 @@ const ListView: FunctionalComponent<ListViewType> = (props) => {
       throw new Error('データベースエラー');
     }
   }, []);
+
+  const listOfTodosEditButtonHandler = (selectedTodoItem: TodoItem) => {
+    setToggleModal(true);
+    setFormMode('EDIT');
+    setEditingTodo(selectedTodoItem.gid || '');
+    handleTodoEdit(selectedTodoItem.gid || '', 'POPULATE');
+  };
 
   // cookie チェック
   if (!userCookie) {
@@ -330,160 +316,21 @@ const ListView: FunctionalComponent<ListViewType> = (props) => {
           className={style.customContainer}
           style={{ '--checkColor': 'red' }}
         >
-          {listTodos?.length === 0 && '表示するToDoはありません'}
-          <FlipMove
-            typeName="ul"
-            duration={500}
-            easing={'cubic-bezier(0.39,0,0.45,1.4)'}
-            staggerDurationBy={22}
-            staggerDelayBy={10}
-            delay={0}
-          >
-            {listTodos?.map((todo) => {
-              return (
-                <li className={style.todoItem} key={todo.gid}>
-                  <label
-                    className="pixel-border"
-                    htmlFor={`${todo.gid}-checkbox`}
-                  >
-                    <input
-                      type="checkbox"
-                      className={style.appCheckbox}
-                      id={`${todo.gid}-checkbox`}
-                      checked={todo.done}
-                      onInput={(e) => handleInputCheck(e, todo.gid || '')}
-                    />
-                    <span role="img" />
-                  </label>
-                  <section
-                    className={clsx(
-                      todo.done && style.done,
-                      'pixel-border',
-                      activeTodo === `${todo.gid}-section` && style.isActive
-                    )}
-                    id={`${todo.gid}-section`}
-                    style={{ position: 'relative' }}
-                  >
-                    <button
-                      aria-label={`select ${todo.title} Todo`}
-                      type="button"
-                      className={style.setActiveButton}
-                      onClick={() => {
-                        if (!todo.done) {
-                          setActiveTodo(`${todo.gid}-section`);
-                        }
-                      }}
-                    />
-                    <header>
-                      <h3 id="todoTitle">{todo.title}</h3>
-                      <time
-                        dateTime={dateFormat(todo.creationDate).toISOString()}
-                      >
-                        {dateFormat(todo.creationDate).format('LL LTS')}
-                      </time>
-                    </header>
-                    <div>
-                      <p>{todo.description || '---'}</p>
-                    </div>
-                    <Transition
-                      timeout={600}
-                      mountOnEnter={true}
-                      unmountOnExit={true}
-                      in={activeTodo === `${todo.gid}-section`}
-                      onEntering={(node: HTMLElement) => {
-                        utils.remove(node);
-                        animate(node, {
-                          width: [0, '100%'],
-                          padding: [0, 8],
-                          duration: 600,
-                          easing: 'easeInOutExpo'
-                        });
-                      }}
-                      onExiting={(node: HTMLElement) => {
-                        utils.remove(node);
-                        animate(node, {
-                          width: 0,
-                          padding: 0,
-                          duration: 600,
-                          easing: 'easeInOutExpo'
-                        });
-                      }}
-                    >
-                      <span className={style.actions}>
-                        <button
-                          type="button"
-                          onClick={async () => {
-                            await sleep(150);
-                            if (
-                              window.confirm(
-                                'ToDoが完全に削除されます、よろしいですか？'
-                              )
-                            ) {
-                              handleTodoDelete(todo.gid || '');
-                            }
-                          }}
-                          className="pixel-border"
-                        >
-                          <DeleteIcon />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setToggleModal(true);
-                            setForMode('EDIT');
-                            setEditingTodo(todo.gid || '');
-                            handleTodoEdit(todo.gid || '', 'POPULATE');
-                          }}
-                          className="pixel-border"
-                        >
-                          <EditIcon />
-                        </button>
-                      </span>
-                    </Transition>
-                  </section>
-                </li>
-              );
-            })}
-          </FlipMove>
+          <ListOfTodos
+            listTodos={listTodos}
+            activeTodo={activeTodo}
+            setActiveTodo={setActiveTodo}
+            listOfTodosEditButtonHandler={listOfTodosEditButtonHandler}
+          />
         </div>
       </div>
-      <footer
-        style={{
-          justifyContent: 'space-between ',
-          display: 'flex',
-          alignItems: 'center'
-        }}
-      >
-        <div className={style.filtersWrap}>
-          <h4>フィルター</h4>
-          <span>
-            {filtersArr.map((type) => {
-              return (
-                <button
-                  key={type}
-                  type="button"
-                  className={clsx(
-                    type === filters.type && style.active,
-                    'pixel-border'
-                  )}
-                  onClick={() => setFilters({ type })}
-                >
-                  {type === 'hideOnGoing' && '完了'}
-                  {type === 'hideDone' && 'まだ'}
-                  {type === 'showAll' && '全部'}
-                </button>
-              );
-            })}
-          </span>
-        </div>
-        <AddButton
-          onClick={() => {
-            setForMode('CREATE');
-            setToggleModal((v) => !v);
-          }}
-          closeMode={toggleModal}
-        />
-      </footer>
+      <ListViewFooter
+        currentFilter={currentFilter}
+        setCurrentFilter={setCurrentFilter}
+        setFormMode={setFormMode}
+        setToggleModal={setToggleModal}
+        toggleModal={toggleModal}
+      />
     </div>
   );
 };

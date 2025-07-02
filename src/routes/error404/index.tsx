@@ -1,8 +1,10 @@
+import { Button } from '@components';
 import { animate } from 'animejs';
 import type { FunctionalComponent } from 'preact';
 import { route } from 'preact-router';
 import { useRef } from 'preact/hooks';
-import Button from '../../components/button';
+
+// styles
 import style from './style.module.css';
 
 const Error404: FunctionalComponent = () => {

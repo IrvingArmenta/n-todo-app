@@ -3,13 +3,13 @@ import type { FunctionalComponent } from 'preact';
 import { route } from 'preact-router';
 import { useCallback, useRef } from 'preact/hooks';
 import { getCookie, removeCookie } from 'tiny-cookie';
-import { APP_ROOT, TODO_APP_COOKIE } from '../../globals';
-import Button from '../button';
-import Timer from '../timer';
+import { TODO_APP_COOKIE } from '../../globals';
 import style from './style.module.css';
 type HeaderType = {
   isLogin?: boolean;
 };
+
+import { Button, Timer } from '@components';
 
 const Header: FunctionalComponent<HeaderType> = (props) => {
   const { isLogin } = props;

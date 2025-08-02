@@ -84,6 +84,10 @@ const Login: FunctionalComponent = () => {
       scope.current = createScope({ root }).add((self) => {
         const tl = createTimeline({ defaults: { duration: 500 } });
 
+        if (!self) {
+          return;
+        }
+
         tl.add('.logo', {
           opacity: [0, 1],
           translateY: [32, 0],

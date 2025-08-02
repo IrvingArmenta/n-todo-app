@@ -6,13 +6,14 @@ import { useRef } from 'preact/hooks';
 
 // styles
 import style from './style.module.css';
+import { clsx } from '@utils';
 
 const Error404: FunctionalComponent = () => {
   const errorPageRef = useRef<HTMLDivElement>(null);
   return (
     <div
       ref={errorPageRef}
-      className={`${style.errorPageWrap} app-page centered`}
+      className={clsx(style.errorPageWrap, 'app-page', 'centered')}
     >
       <span>〠</span>
       <h1 style={{ color: 'red' }}>404 エラー</h1>

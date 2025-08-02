@@ -1,5 +1,5 @@
 import { AddButton, Button, Container, Input, Modal } from '@components';
-import { itsNotEmpty, sleep } from '@utils';
+import { clsx, itsNotEmpty, sleep } from '@utils';
 import { animate } from 'animejs';
 import { useLiveQuery } from 'dexie-react-hooks';
 import type { FunctionalComponent } from 'preact';
@@ -104,7 +104,7 @@ const Dashboard: FunctionalComponent<DashboardType> = () => {
 
   return (
     <div
-      className={`${style.dashboard} app-page centered`}
+      className={clsx(style.dashboard, 'app-page', 'centered')}
       id="dashboardPage"
       ref={dbPageRef}
     >

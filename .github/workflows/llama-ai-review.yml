@@ -42,7 +42,7 @@ jobs:
             -X POST \
             -H "Authorization: Bearer ${{ secrets.HF_TOKEN }}" \
             -H 'Content-Type: application/json' \
-            -d "$(jq -n --arg model 'meta-llama/Meta-Llama-3-8B' \
+            -d "$(jq -n --arg model 'meta-llama/Llama-3.1-8B' \
                       --arg prompt "$(cat llama_prompt.txt)" \
                       '{model: $model, prompt: $prompt, temperature: 0.7, max_tokens: 1000}')" \
             > llama_response.json

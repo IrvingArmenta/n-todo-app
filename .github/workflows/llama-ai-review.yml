@@ -19,7 +19,7 @@ jobs:
         run: |
           BASE_SHA="${{ github.event.pull_request.base.sha }}"
           HEAD_SHA="${{ github.event.pull_request.head.sha }}"
-          git fetch origin $BASE_SHA $HEAD_SHA
+          git fetch origin
           git diff $BASE_SHA $HEAD_SHA > pr.diff
 
       - name: Prepare diff content
@@ -50,10 +50,11 @@ jobs:
         with:
           script: |
             const fs = require('fs');
-            const body = fs.readFileSync('llama_response.json', 'utf8');
+            const raw = JSON.parse(fs.readFileSync('llama_response.json', 'utf8'));
+            const message = raw.choices?.[0]?.message?.content || 'No review available.';
             github.rest.issues.createComment({
               issue_number: context.payload.pull_request.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `🤖 **LLaMA 3 AI Review**\n\n${body}`
+              body: `🤖 **LLaMA 3 AI Review**\n\n${message}`
             });

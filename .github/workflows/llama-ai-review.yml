@@ -14,38 +14,31 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Get PR diff
+        id: get_diff
         run: |
-          git fetch origin ${{ github.base_ref }}
-          git diff origin/${{ github.base_ref }} --name-only > changed_files.txt
+          git fetch origin +refs/pull/${{ github.event.pull_request.number }}/merge
+          git diff origin/main...FETCH_HEAD > pr.diff
 
-      - name: Filter React/TypeScript files
-        id: filter
+      - name: Review with Meta-Llama-3.1-8B Chat
+        id: llama_review
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          grep -E '\.tsx?$' changed_files.txt > filtered_files.txt || true
-          echo "files=$(cat filtered_files.txt | paste -sd ',' -)" >> $GITHUB_OUTPUT
-
-      - name: Build code prompt
-        id: prompt
-        run: |
-          echo "Review the following React/TypeScript code for quality and improvements:\n" > llama_prompt.txt
-          for file in $(cat filtered_files.txt); do
-            echo -e "\n--- FILE: $file ---\n" >> llama_prompt.txt
-            cat "$file" >> llama_prompt.txt
-          done
-          echo "prompt<<EOF" >> $GITHUB_OUTPUT
-          cat llama_prompt.txt >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-
-      - name: Call LLaMA 3 via Hugging Face Featherless Router
-        run: |
-          curl https://router.huggingface.co/featherless-ai/v1/completions \
-            -X POST \
-            -H "Authorization: Bearer ${{ secrets.HF_TOKEN }}" \
-            -H 'Content-Type: application/json' \
-            -d "$(jq -n --arg model 'meta-llama/Llama-3.1-8B' \
-                      --arg prompt "$(cat llama_prompt.txt)" \
-                      '{model: $model, prompt: $prompt, temperature: 0.7, max_tokens: 1000}')" \
-            > llama_response.json
+          DIFF_CONTENT=$(cat pr.diff | head -c 4000 | jq -Rs .)
+          REVIEW=$(curl -s -X POST https://router.huggingface.co/featherless-ai/v1/chat/completions \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${HF_TOKEN}" \
+            -d '{
+              "model": "meta-llama/Meta-Llama-3.1-8B",
+              "messages": [
+                { "role": "system", "content": "You are a helpful code reviewer." },
+                { "role": "user", "content": "Review this diff:\n---\n'"${DIFF_CONTENT}"'" }
+              ],
+              "max_tokens": 300,
+              "temperature": 0.7,
+              "top_p": 0.95
+            }' | jq -r '.choices[0].message.content')
+          echo "$REVIEW" > llama_review.txt
 
       - name: Post AI review to PR
         uses: actions/github-script@v7

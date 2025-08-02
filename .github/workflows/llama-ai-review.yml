@@ -12,12 +12,15 @@ jobs:
     steps:
       - name: Checkout PR code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Get PR diff
-        id: get_diff
         run: |
-          git fetch origin +refs/pull/${{ github.event.pull_request.number }}/merge
-          git diff origin/main...FETCH_HEAD > pr.diff
+          BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+          git fetch origin $BASE_SHA $HEAD_SHA
+          git diff $BASE_SHA $HEAD_SHA > pr.diff
 
       - name: Review with Meta-Llama-3.1-8B Chat
         id: llama_review

@@ -1,7 +1,7 @@
 import { db } from '@api/db';
 import { TodoItem } from '@api/models/todoItem';
 import { Button, Input, Modal, Textarea } from '@components';
-import { itsNotEmpty } from '@utils';
+import { clsx, itsNotEmpty } from '@utils';
 import { animate } from 'animejs';
 import type { FunctionalComponent } from 'preact';
 import { route } from 'preact-router';
@@ -199,7 +199,7 @@ const ListView: FunctionalComponent<ListViewType> = (props) => {
   return (
     <div
       id="appPage"
-      className={`${style.listViewWrapper} app-page`}
+      className={clsx(style.listViewWrapper, 'app-page')}
       ref={listViewPageRef}
     >
       <Modal
@@ -311,7 +311,7 @@ const ListView: FunctionalComponent<ListViewType> = (props) => {
           {`日付 ${order ? '▲' : '▼'}`}
         </button>
       </header>
-      <div className={`${style.containerWrap} pixel-border`}>
+      <div className={clsx(style.containerWrap, 'pixel-border')}>
         <div
           className={style.customContainer}
           style={{ '--checkColor': 'red' }}

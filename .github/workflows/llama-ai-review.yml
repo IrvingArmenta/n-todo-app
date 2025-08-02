@@ -1,0 +1,61 @@
+name: LLaMA 3 AI Review
+
+on:
+  pull_request:
+    types: [labeled]
+
+jobs:
+  llama-review:
+    if: github.event.label.name == 'ai-review'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout PR code
+        uses: actions/checkout@v4
+
+      - name: Get PR diff
+        run: |
+          git fetch origin ${{ github.base_ref }}
+          git diff origin/${{ github.base_ref }} --name-only > changed_files.txt
+
+      - name: Filter React/TypeScript files
+        id: filter
+        run: |
+          grep -E '\.tsx?$' changed_files.txt > filtered_files.txt || true
+          echo "files=$(cat filtered_files.txt | paste -sd ',' -)" >> $GITHUB_OUTPUT
+
+      - name: Build code prompt
+        id: prompt
+        run: |
+          echo "Review the following React/TypeScript code for quality and improvements:\n" > llama_prompt.txt
+          for file in $(cat filtered_files.txt); do
+            echo -e "\n--- FILE: $file ---\n" >> llama_prompt.txt
+            cat "$file" >> llama_prompt.txt
+          done
+          echo "prompt<<EOF" >> $GITHUB_OUTPUT
+          cat llama_prompt.txt >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Call LLaMA 3 via Hugging Face Featherless Router
+        run: |
+          curl https://router.huggingface.co/featherless-ai/v1/completions \
+            -X POST \
+            -H "Authorization: Bearer ${{ secrets.HF_TOKEN }}" \
+            -H 'Content-Type: application/json' \
+            -d "$(jq -n --arg model 'meta-llama/Meta-Llama-3-8B' \
+                      --arg prompt "$(cat llama_prompt.txt)" \
+                      '{model: $model, prompt: $prompt, temperature: 0.7, max_tokens: 1000}')" \
+            > llama_response.json
+
+      - name: Post AI review to PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const body = fs.readFileSync('llama_response.json', 'utf8');
+            github.rest.issues.createComment({
+              issue_number: context.payload.pull_request.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `🤖 **LLaMA 3 AI Review**\n\n${body}`
+            });
